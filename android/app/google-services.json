@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "370298050681",
+    "firebase_url": "https://tparking-8a873-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tparking-8a873",
+    "storage_bucket": "tparking-8a873.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370298050681:android:a0fd7b9a9da48ee9661ca8",
+        "android_client_info": {
+          "package_name": "com.example.tparking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "370298050681-uhk0l5ndn5vp6do4smn0ncaptusq1jju.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB24f2TQEBxTQC7TFr01UjMNPoErsbfl9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "370298050681-uhk0l5ndn5vp6do4smn0ncaptusq1jju.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "370298050681-6d84f1ok4t354ph5obiiu3456ibllphs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tparking.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
