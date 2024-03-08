@@ -16,21 +16,17 @@ class Reserve extends StatelessWidget {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
         appBar: AppBar(
-
-          backgroundColor: isDark? Colors.black26 :tPrimaryColor,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(width: 20),
-              Text(
-                "TPARKING",
-                style: Theme.of(context).textTheme.headlineMedium
-              ),
-            ],
-          ),
-          centerTitle: true,
-          automaticallyImplyLeading: false
-        ),
+            backgroundColor: isDark ? Colors.black26 : tPrimaryColor,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 20),
+                Text("TPARKING",
+                    style: Theme.of(context).textTheme.headlineMedium),
+              ],
+            ),
+            centerTitle: true,
+            automaticallyImplyLeading: false),
         body: Obx(
           () => SafeArea(
             child: Padding(
@@ -52,7 +48,7 @@ class Reserve extends StatelessWidget {
                                 fontSize: 20,
                               ),
                             ),
-                           BuildingSelector(),
+                            BuildingSelector(),
                           ],
                         )
                       ],
@@ -64,7 +60,8 @@ class Reserve extends StatelessWidget {
                         Column(
                           children: [
                             Text("ENTRY"),
-                            Icon(Icons.keyboard_arrow_down,
+                            Icon(
+                              Icons.keyboard_arrow_down,
                             )
                           ],
                         ),
@@ -86,10 +83,8 @@ class Reserve extends StatelessWidget {
                         const SizedBox(
                           width: 60,
                           height: 60,
-                          child: VerticalDivider(
-                            color: Colors.red,
-                            thickness: 2
-                          ),
+                          child:
+                              VerticalDivider(color: Colors.red, thickness: 2),
                         ),
                         Expanded(
                           child: ParkingSlot(
@@ -120,10 +115,8 @@ class Reserve extends StatelessWidget {
                         const SizedBox(
                           width: 60,
                           height: 60,
-                          child: VerticalDivider(
-                            color: Colors.red,
-                            thickness: 2
-                          ),
+                          child:
+                              VerticalDivider(color: Colors.red, thickness: 2),
                         ),
                         Expanded(
                             child: Obx(
@@ -155,10 +148,8 @@ class Reserve extends StatelessWidget {
                         const SizedBox(
                           width: 60,
                           height: 60,
-                          child: VerticalDivider(
-                            color: Colors.red,
-                            thickness: 2
-                          ),
+                          child:
+                              VerticalDivider(color: Colors.red, thickness: 2),
                         ),
                         Expanded(
                             child: Obx(
@@ -190,10 +181,8 @@ class Reserve extends StatelessWidget {
                         const SizedBox(
                           width: 60,
                           height: 60,
-                          child: VerticalDivider(
-                            color:  Colors.red,
-                            thickness: 2
-                          ),
+                          child:
+                              VerticalDivider(color: Colors.red, thickness: 2),
                         ),
                         Expanded(
                             child: Obx(
@@ -205,8 +194,7 @@ class Reserve extends StatelessWidget {
                             time: parkingController.slot8.value.parkingHours
                                 .toString(),
                           ),
-                        )
-                        )
+                        ))
                       ],
                     ),
                     const Row(
@@ -214,7 +202,10 @@ class Reserve extends StatelessWidget {
                       children: [
                         Column(
                           children: [
-                            Text("EXIT",textAlign: TextAlign.justify,),
+                            Text(
+                              "EXIT",
+                              textAlign: TextAlign.justify,
+                            ),
                             Icon(Icons.keyboard_arrow_down)
                           ],
                         ),

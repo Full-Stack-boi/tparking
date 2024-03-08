@@ -10,7 +10,7 @@ import '../models/car_model.dart';
 import 'notification_local.dart';
 
 class ParkingController extends GetxController {
-  final  fb = FirebaseDatabase.instance;
+  final fb = FirebaseDatabase.instance;
   var parkingHours = 10.0.obs;
   var selectedBuilding = "A Building".obs;
   TextEditingController name = TextEditingController();
@@ -40,7 +40,7 @@ class ParkingController extends GetxController {
   var slot8 = CarModel().obs;
   // ignore: prefer_typing_uninitialized_variables
   var isBooked;
-  late String slotIdPraked ='';
+  late String slotIdPraked = '';
   late String checkslotId = '';
   // ignore: prefer_typing_uninitialized_variables
   var isParked = false;
@@ -51,18 +51,14 @@ class ParkingController extends GetxController {
     startDataUpdates();
   }
 
-
   void updateData(slotId) async {
     await fb.ref().child(slotId).update(
       {
         "name": name.text,
         "parkingHours": parkingHours.toString(),
-    //    "paymentDone": true,
+        //    "paymentDone": true,
         "booked": true,
-        
-        
       },
-      
     );
     slotIdPraked = slotId;
     isBooked = true;
@@ -75,7 +71,6 @@ class ParkingController extends GetxController {
         titleStyle: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w500,
-
         ),
         content: Column(
           children: [
@@ -92,7 +87,6 @@ class ParkingController extends GetxController {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
-                    
                   ),
                 )
               ],
@@ -100,7 +94,8 @@ class ParkingController extends GetxController {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Get.to(const Dashboard(),transition: Transition.circularReveal);
+                Get.to(const Dashboard(),
+                    transition: Transition.circularReveal);
               },
               child: const Text("Close"),
             )
@@ -125,32 +120,25 @@ class ParkingController extends GetxController {
       slot8Controller();
     }
     slotIdPraked = slotId;
-    checkslotId = slotIdPraked; 
+    checkslotId = slotIdPraked;
   }
-  
 
-   checkoutupdate(slotIdPraked) async{
-    
-       await fb.ref().child(slotIdPraked).update({
-      "isParked" : true,
-      "parkingHours": 0.0.toString(),
-    },
+  checkoutupdate(slotIdPraked) async {
+    await fb.ref().child(slotIdPraked).update(
+      {
+        "isParked": true,
+        "parkingHours": 0.0.toString(),
+      },
     );
     isParked = true;
-    
   }
 
-     parkUpdate(checkslotId) async{
-    
-       await fb.ref().child(checkslotId).update({
-      "isParked" : false,
-       "booked": false,
-        "name":""
-    },
+  parkUpdate(checkslotId) async {
+    await fb.ref().child(checkslotId).update(
+      {"isParked": false, "booked": false, "name": ""},
     );
     isParked = false;
   }
-
 
   void startDataUpdates() async {
     while (true) {
@@ -247,10 +235,10 @@ class ParkingController extends GetxController {
     fb.ref().push().set(car.toJson());
   }
 
-   slot1Controller() async {
+  slot1Controller() async {
     double time = double.parse(slot1.value.parkingHours.toString());
 
-    while (time != 0 ) {
+    while (time != 0) {
       await Future.delayed(const Duration(seconds: 1)); // for testing
       //await Future.delayed(Duration(minutes: 1)); ---> use for publicshed
       time--;
@@ -263,31 +251,31 @@ class ParkingController extends GetxController {
         },
       );
     }
-    
-if (isParked == false) {
-  await fb.ref().child(slot1KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+
+    if (isParked == false) {
+      await fb.ref().child(slot1KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 // await fb.ref().child(slot1KEY).update(
 //       {
 //         "booked": false,
 //         "name":""
 //       },
 //     );
-    
+
     isBooked = false;
     // if (kDebugMode) {
     //   print("Slot 1 time ended : Slot 1 updated");
     // }
-}
+  }
 
   void slot2Controller() async {
     double time = double.parse(slot2.value.parkingHours.toString());
@@ -305,29 +293,27 @@ if (isParked == false) {
       );
     }
 
+    if (isParked == false) {
+      await fb.ref().child(slot2KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
+    // await fb.ref().child(slot2KEY).update(
+    //     {
+    //     //  "paymentDone": false,
+    //       "booked": false,
+    //       "isParked": false,
+    //       "name":""
+    //     },
+    //   );
 
-if (isParked == false) {
-  await fb.ref().child(slot2KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel'); 
-}
-  // await fb.ref().child(slot2KEY).update(
-  //     {
-  //     //  "paymentDone": false,
-  //       "booked": false,
-  //       "isParked": false,
-  //       "name":""
-  //     },
-  //   );
-
-    
     isBooked = false;
     // if (kDebugMode) {
     //   print("Slot 2 time ended : Slot 2 updated");
@@ -350,19 +336,18 @@ NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been
       );
     }
 
-
-if (isParked == false) {
-  await fb.ref().child(slot3KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+    if (isParked == false) {
+      await fb.ref().child(slot3KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 
     // await fb.ref().child(slot3KEY).update(
     //   {
@@ -394,19 +379,18 @@ if (isParked == false) {
       );
     }
 
-
-if (isParked == false) {
-  await fb.ref().child(slot4KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+    if (isParked == false) {
+      await fb.ref().child(slot4KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 
     // await fb.ref().child(slot4KEY).update(
     //   {
@@ -438,19 +422,18 @@ if (isParked == false) {
       );
     }
 
-
-if (isParked == false) {
-  await fb.ref().child(slot5KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+    if (isParked == false) {
+      await fb.ref().child(slot5KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 
     // await fb.ref().child(slot5KEY).update(
     //   {
@@ -482,19 +465,18 @@ if (isParked == false) {
       );
     }
 
-
-if (isParked == false) {
-  await fb.ref().child(slot6KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+    if (isParked == false) {
+      await fb.ref().child(slot6KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 
     // await fb.ref().child(slot6KEY).update(
     //   {
@@ -526,19 +508,18 @@ if (isParked == false) {
       );
     }
 
-
-if (isParked == false) {
-  await fb.ref().child(slot7KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+    if (isParked == false) {
+      await fb.ref().child(slot7KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 
     // await fb.ref().child(slot7KEY).update(
     //   {
@@ -570,19 +551,18 @@ if (isParked == false) {
       );
     }
 
-
-if (isParked == false) {
-  await fb.ref().child(slot8KEY).update(
-      {
-    
-      //  "paymentDone": false,
-        "booked": false,
-        "isParked": false,
-        "name":""
-      },
-    );
-  NotificationLocal().scheduleNotification(title:'Alert',body: 'Your slot has been cancel');
-}
+    if (isParked == false) {
+      await fb.ref().child(slot8KEY).update(
+        {
+          //  "paymentDone": false,
+          "booked": false,
+          "isParked": false,
+          "name": ""
+        },
+      );
+      NotificationLocal().scheduleNotification(
+          title: 'Alert', body: 'Your slot has been cancel');
+    }
 
     // await fb.ref().child(slot8KEY).update(
     //   {
@@ -598,4 +578,3 @@ if (isParked == false) {
     // }
   }
 }
-

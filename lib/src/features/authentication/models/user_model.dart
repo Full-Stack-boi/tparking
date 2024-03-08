@@ -1,4 +1,3 @@
-
 //import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,41 +12,38 @@ class UserModel {
   final String phoneNo;
   final String password;
   final String roles;
-  final String? imgaeLink; 
+  final String? imgaeLink;
   //final Uint8List? file;
 
-  UserModel({
-    this.imgaeLink,
-    this.id, 
-    required this.fullName,
-    required this.email,
-    required this.phoneNo,
-    required this.password,
-    required this.roles
-    
-   }
-  );
-  toJson(){
+  UserModel(
+      {this.imgaeLink,
+      this.id,
+      required this.fullName,
+      required this.email,
+      required this.phoneNo,
+      required this.password,
+      required this.roles});
+  toJson() {
     return {
-      "Fullname"  : fullName,
-      "Email"     : email,
-      "Password"  : password,
-      "PhoneNo"   : phoneNo,
-      "Roles"     : roles,
-      "imgaeLink"   : imgaeLink, 
+      "Fullname": fullName,
+      "Email": email,
+      "Password": password,
+      "PhoneNo": phoneNo,
+      "Roles": roles,
+      "imgaeLink": imgaeLink,
     };
   }
-  factory UserModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic >> document){
+
+  factory UserModel.fromSnapshot(
+      DocumentSnapshot<Map<String, dynamic>> document) {
     final data = document.data()!;
     return UserModel(
-      id: document.id,
-      fullName: data["Fullname"],
-      email: data["Email"],
-      phoneNo: data["PhoneNo"],
-      password: data["Password"],
-      roles: data["Roles"],
-      imgaeLink:  data["imgaeLink"]
-      );
-  } 
-  
+        id: document.id,
+        fullName: data["Fullname"],
+        email: data["Email"],
+        phoneNo: data["PhoneNo"],
+        password: data["Password"],
+        roles: data["Roles"],
+        imgaeLink: data["imgaeLink"]);
+  }
 }

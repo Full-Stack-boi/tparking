@@ -16,23 +16,25 @@ class CarRegistion extends StatefulWidget {
   State<CarRegistion> createState() => _MyCarRegistion();
 }
 
-
 class _MyCarRegistion extends State<CarRegistion> {
-
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        backgroundColor: isDark ? Colors.black26:tPrimaryColor,
-        title: Text(tCarRegistration,style: Theme.of(context).textTheme.headlineMedium),
+        backgroundColor: isDark ? Colors.black26 : tPrimaryColor,
+        title: Text(tCarRegistration,
+            style: Theme.of(context).textTheme.headlineMedium),
         automaticallyImplyLeading: false,
         centerTitle: true,
       ),
-      body: const SafeArea(child: 
-      OrientationWidget(portrait: PortraitContent(),lanscape: LanscapeContent(),)),
+      body: const SafeArea(
+          child: OrientationWidget(
+        portrait: PortraitContent(),
+        lanscape: LanscapeContent(),
+      )),
     );
 
     // child: Column(
@@ -62,14 +64,169 @@ class _ProtraitState extends State<PortraitContent> {
   Widget build(BuildContext context) {
     final inputcontroller = TextEditingController();
     return Column(
-        children: [
-          SingleChildScrollView(
+      children: [
+        SingleChildScrollView(
+          child: Container(
+            // height: 300,
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.symmetric(
+                vertical: 50, horizontal: tDefaultSize - 0.1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextField(
+                  maxLength: 7,
+                  maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                  controller: inputcontroller,
+                  decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.car_crash),
+                      suffixIcon: TextButton(
+                        onPressed: () {
+                          if (inputcontroller.value.text == '') {
+                            Get.showSnackbar(const GetSnackBar(
+                              title: tError,
+                              message: "Please Enter Car Registration",
+                              duration: Duration(seconds: 2),
+                            ));
+                          } else {
+                            // แก้ได้
+                            setState(() {
+                              carRegister = carRegister;
+                            });
+                            // แก้ได้
+                            carRegister.add(inputcontroller.value.text);
+                          }
+                        },
+                        child: const Text("ADD"),
+                      ),
+                      label: const Text(tCarRegistration),
+                      border: const OutlineInputBorder()),
+                ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // Align(
+                //   alignment: Alignment.center,
+                //   child: TextButton(
+                //     onPressed: () {
+                //       if (inputcontroller.value.text == '') {
+                //         Get.showSnackbar(const GetSnackBar(
+                //           title: "Error",
+                //           message: "Please Enter Car Registration",
+                //           duration: Duration(seconds: 3),
+                //         ));
+                //       } else {
+                //           // แก้ได้
+                //         setState(() {carRegister = carRegister; });
+                //         // แก้ได้
+                //         carRegister.add(inputcontroller.value.text);
+                //       }
+                //     },
+                //     child: const Text("ADD"),
+                //   ),
+                // ),
+                // const SizedBox(
+                //   height: 25,
+                // ),
+                // Align(
+                //   alignment: Alignment.center,
+                //   child: TextButton(
+                //     onPressed: () {
+                //       if (inputcontroller.value.text == '') {
+                //         Get.showSnackbar(const GetSnackBar(
+                //           title: "Error",
+                //           message: "Please Enter Car Registration",
+                //           duration: Duration(seconds: 3),
+                //         ));
+                //       } else {
+
+                //       }
+                //     },
+                //     child: const Text("Remove"),
+                //   ),
+                // ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: AnimationLimiter(
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: carRegister.length,
+              itemBuilder: (BuildContext context, int index) {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    verticalOffset: 50.0,
+                    child: SlideAnimation(
+                      child: SizedBox(
+                          child: Card(
+                        elevation: 5,
+                        margin: const EdgeInsets.only(
+                            left: 10, right: 10, bottom: 10),
+                        // margin: const EdgeInsets.all(10.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: ScaleAnimation(
+                          duration: const Duration(milliseconds: 400),
+                          child: ListTile(
+                            leading: const Icon(Icons.car_rental),
+                            title: Text(carRegister[index]),
+                            subtitle: const Text("Your Car Register"),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                // แก้ได้
+                                setState(() {
+                                  carRegister[index] = carRegister[index];
+                                });
+                                // แก้ได้
+                                carRegister.remove(carRegister[index]);
+                              },
+                            ),
+
+                            // child: Text(carRegister[index],style: TextStyle(fontSize:20),)
+                          ),
+                        ),
+                      )),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class LanscapeContent extends StatefulWidget {
+  const LanscapeContent({super.key});
+
+  @override
+  State<LanscapeContent> createState() => _LanscapeContentState();
+}
+
+class _LanscapeContentState extends State<LanscapeContent> {
+  @override
+  Widget build(BuildContext context) {
+    final inputcontroller = TextEditingController();
+    return Row(
+      children: [
+        Flexible(
+          flex: 1,
+          child: SingleChildScrollView(
             child: Container(
-               // height: 300,
+              // height: 300,
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.symmetric(
-                  vertical: 50,
-                  horizontal: tDefaultSize-0.1),
+                  vertical: 50, horizontal: tDefaultSize - 0.1),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -77,25 +234,27 @@ class _ProtraitState extends State<PortraitContent> {
                     maxLength: 7,
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     controller: inputcontroller,
-                    decoration:  InputDecoration(
+                    decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.car_crash),
                         suffixIcon: TextButton(
-                          onPressed: (){
-                             if (inputcontroller.value.text == '') {
-                          Get.showSnackbar(const GetSnackBar(
-                            title: tError,
-                            message: "Please Enter Car Registration",
-                            duration: Duration(seconds: 2),
-                          ));
-                        } else {
-                            // แก้ได้
-                          setState(() {carRegister = carRegister; });
-                          // แก้ได้
-                          carRegister.add(inputcontroller.value.text);
-                        }},
-          
+                          onPressed: () {
+                            if (inputcontroller.value.text == '') {
+                              Get.showSnackbar(const GetSnackBar(
+                                title: tError,
+                                message: "Please Enter Car Registration",
+                                duration: Duration(seconds: 2),
+                              ));
+                            } else {
+                              // แก้ได้
+                              setState(() {
+                                carRegister = carRegister;
+                              });
+                              // แก้ได้
+                              carRegister.add(inputcontroller.value.text);
+                            }
+                          },
                           child: const Text("ADD"),
-               ),
+                        ),
                         label: const Text(tCarRegistration),
                         border: const OutlineInputBorder()),
                   ),
@@ -136,7 +295,7 @@ class _ProtraitState extends State<PortraitContent> {
                   //           duration: Duration(seconds: 3),
                   //         ));
                   //       } else {
-          
+
                   //       }
                   //     },
                   //     child: const Text("Remove"),
@@ -146,211 +305,59 @@ class _ProtraitState extends State<PortraitContent> {
               ),
             ),
           ),
-          Expanded(
-            child: AnimationLimiter(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: carRegister.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: SlideAnimation(
-                        child: SizedBox(
-                            child: Card(
-                              elevation: 5,
-                              margin: const EdgeInsets.only(left: 10,right: 10,bottom: 10),
-                              // margin: const EdgeInsets.all(10.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: ScaleAnimation(
-                                duration: const Duration(milliseconds: 400),
-                                child: ListTile(
-                                  leading: const Icon(Icons.car_rental),
-                                  title: Text(carRegister[index]),
-                                  subtitle: const Text("Your Car Register"),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete,
-                                    color: Colors.red,),
-                                    onPressed: () {
-                                      // แก้ได้
-                                      setState(() {
-                                        carRegister[index] = carRegister[index]; });
-                                      // แก้ได้
-                                      carRegister.remove(carRegister[index]
-                                      );
-                                    },
-                                  ),
-
-                                  // child: Text(carRegister[index],style: TextStyle(fontSize:20),)
-                                ),
+        ),
+        Expanded(
+          child: AnimationLimiter(
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              itemCount: carRegister.length,
+              itemBuilder: (BuildContext context, int index) {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    verticalOffset: 50.0,
+                    child: FadeInAnimation(
+                      child: SizedBox(
+                          child: Card(
+                        elevation: 5,
+                        margin: const EdgeInsets.only(top: 14, right: 10),
+                        // margin: const EdgeInsets.all(10.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: ScaleAnimation(
+                          duration: const Duration(milliseconds: 400),
+                          child: ListTile(
+                            leading: const Icon(Icons.car_rental),
+                            title: Text(carRegister[index]),
+                            subtitle: const Text("Your Car Register"),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
                               ),
-                            )),
-                      ),
+                              onPressed: () {
+                                // แก้ได้
+                                setState(() {
+                                  carRegister[index] = carRegister[index];
+                                });
+                                // แก้ได้
+                                carRegister.remove(carRegister[index]);
+                              },
+                            ),
+
+                            // child: Text(carRegister[index],style: TextStyle(fontSize:20),)
+                          ),
+                        ),
+                      )),
                     ),
-                  );
-                },
-              ),
-            ),
-            
-          ),
-        ],
-      );
-  }
-}
-
-class LanscapeContent extends StatefulWidget {
-  const LanscapeContent({super.key});
-
-  @override
-  State<LanscapeContent> createState() => _LanscapeContentState();
-}
-
-class _LanscapeContentState extends State<LanscapeContent> {
-  @override
-  Widget build(BuildContext context) {
-       final inputcontroller = TextEditingController();
-    return Row(
-        children: [
-          Flexible(
-            flex: 1,
-            child: SingleChildScrollView(
-              child: Container(
-                 // height: 300,
-                alignment: Alignment.bottomCenter,
-                padding: const EdgeInsets.symmetric(
-                    vertical: 50,
-                    horizontal: tDefaultSize-0.1),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TextField(
-                      maxLength: 7,
-                      maxLengthEnforcement: MaxLengthEnforcement.enforced,
-                      controller: inputcontroller,
-                      decoration:  InputDecoration(
-                          prefixIcon: const Icon(Icons.car_crash),
-                          suffixIcon: TextButton(
-                            onPressed: (){
-                               if (inputcontroller.value.text == '') {
-                            Get.showSnackbar(const GetSnackBar(
-                              title: tError,
-                              message: "Please Enter Car Registration",
-                              duration: Duration(seconds: 2),
-                            ));
-                          } else {
-                              // แก้ได้
-                            setState(() {carRegister = carRegister; });
-                            // แก้ได้
-                            carRegister.add(inputcontroller.value.text);
-                          }},
-          
-                            child: const Text("ADD"),
-                 ),
-                          label: const Text(tCarRegistration),
-                          border: const OutlineInputBorder()),
-                    ),
-                    // const SizedBox(
-                    //   height: 15,
-                    // ),
-                    // Align(
-                    //   alignment: Alignment.center,
-                    //   child: TextButton(
-                    //     onPressed: () {
-                    //       if (inputcontroller.value.text == '') {
-                    //         Get.showSnackbar(const GetSnackBar(
-                    //           title: "Error",
-                    //           message: "Please Enter Car Registration",
-                    //           duration: Duration(seconds: 3),
-                    //         ));
-                    //       } else {
-                    //           // แก้ได้
-                    //         setState(() {carRegister = carRegister; });
-                    //         // แก้ได้
-                    //         carRegister.add(inputcontroller.value.text);
-                    //       }
-                    //     },
-                    //     child: const Text("ADD"),
-                    //   ),
-                    // ),
-                    // const SizedBox(
-                    //   height: 25,
-                    // ),
-                    // Align(
-                    //   alignment: Alignment.center,
-                    //   child: TextButton(
-                    //     onPressed: () {
-                    //       if (inputcontroller.value.text == '') {
-                    //         Get.showSnackbar(const GetSnackBar(
-                    //           title: "Error",
-                    //           message: "Please Enter Car Registration",
-                    //           duration: Duration(seconds: 3),
-                    //         ));
-                    //       } else {
-          
-                    //       }
-                    //     },
-                    //     child: const Text("Remove"),
-                    //   ),
-                    // ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
           ),
-          Expanded(
-            child: AnimationLimiter(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: carRegister.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
-                        child: SizedBox(
-                            child: Card(
-                              elevation: 5,
-                              margin: const EdgeInsets.only(top: 14,right: 10),
-                              // margin: const EdgeInsets.all(10.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: ScaleAnimation(
-                                duration: const Duration(milliseconds: 400),
-                                child: ListTile(
-                                  leading: const Icon(Icons.car_rental),
-                                  title: Text(carRegister[index]),
-                                  subtitle: const Text("Your Car Register"),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete,
-                                    color: Colors.red,),
-                                    onPressed: () {
-                                      // แก้ได้
-                                      setState(() {
-                                        carRegister[index] = carRegister[index]; });
-                                      // แก้ได้
-                                      carRegister.remove(carRegister[index]
-                                      );
-                                    },
-                                  ),
-
-                                  // child: Text(carRegister[index],style: TextStyle(fontSize:20),)
-                                ),
-                              ),
-                            )),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            
-          ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 }

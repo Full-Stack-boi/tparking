@@ -14,10 +14,12 @@ class LoginController extends GetxController {
 
   //Call this Function from Design & it will do the rest
   Future<void> login() async {
-    String? error = await AuthenticationRepository.instance.loginWithEmailAndPassword(email.text.trim(), password.text.trim());
-    if(error != null) {
-      Get.showSnackbar(GetSnackBar(message: error.toString(),));
+    String? error = await AuthenticationRepository.instance
+        .loginWithEmailAndPassword(email.text.trim(), password.text.trim());
+    if (error != null) {
+      Get.showSnackbar(GetSnackBar(
+        message: error.toString(),
+      ));
     }
-
   }
 }

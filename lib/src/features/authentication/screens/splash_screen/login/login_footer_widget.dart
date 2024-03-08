@@ -25,7 +25,9 @@ class LoginFooterWidget extends StatelessWidget {
         //   ),
         // ),
         //const SizedBox(height: tFormHeight - 10),
-        const SizedBox(width: double.infinity,),
+        const SizedBox(
+          width: double.infinity,
+        ),
         TextButton(
           onPressed: () => Get.to(() => const SignUpScreen()),
           child: Text.rich(
@@ -33,7 +35,9 @@ class LoginFooterWidget extends StatelessWidget {
                 text: tDontHaveAnAccount,
                 style: Theme.of(context).textTheme.bodyLarge,
                 children: [
-                  TextSpan(text: tSignup.toUpperCase(), style: const TextStyle(color: Colors.blue))
+                  TextSpan(
+                      text: tSignup.toUpperCase(),
+                      style: const TextStyle(color: Colors.blue))
                 ]),
           ),
         ),

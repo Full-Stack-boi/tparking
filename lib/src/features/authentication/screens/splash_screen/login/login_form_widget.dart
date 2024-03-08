@@ -14,12 +14,13 @@ class LoginForm extends StatefulWidget {
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
+
 bool _passwordVisible = true;
 
 @override
- void initState() {
-    _passwordVisible = false;
-  }
+void initState() {
+  _passwordVisible = false;
+}
 
 class _LoginFormState extends State<LoginForm> {
   @override
@@ -38,27 +39,26 @@ class _LoginFormState extends State<LoginForm> {
                   prefixIcon: Icon(Icons.person_outline_outlined),
                   labelText: tEmail,
                   hintText: tEmail,
-                  border: OutlineInputBorder()
-                  ),
+                  border: OutlineInputBorder()),
             ),
             const SizedBox(height: tFormHeight - 20),
             TextFormField(
               obscureText: _passwordVisible,
               controller: controller.password,
-              decoration:  InputDecoration(
+              decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.fingerprint),
                 labelText: tPassword,
                 hintText: tPassword,
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
-                  onPressed: (){
+                  onPressed: () {
                     setState(() {
-                   _passwordVisible = !_passwordVisible;
-                   
-               }
-               );
-               },
-                  icon: _passwordVisible? const Icon(Icons.visibility_off_outlined) :const Icon(Icons.visibility_outlined),
+                      _passwordVisible = !_passwordVisible;
+                    });
+                  },
+                  icon: _passwordVisible
+                      ? const Icon(Icons.visibility_off_outlined)
+                      : const Icon(Icons.visibility_outlined),
                 ),
               ),
             ),
@@ -66,12 +66,16 @@ class _LoginFormState extends State<LoginForm> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                  onPressed: () => {Get.to(() => const ForgetPasswordMailScreen())}, child: const Text(tForgetPassword)),
+                  onPressed: () =>
+                      {Get.to(() => const ForgetPasswordMailScreen())},
+                  child: const Text(tForgetPassword)),
             ),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {controller.login();},
+                onPressed: () {
+                  controller.login();
+                },
                 child: Text(tLogin.toUpperCase()),
               ),
             ),
