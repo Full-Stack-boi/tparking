@@ -16,6 +16,10 @@ class CarRegistion extends StatefulWidget {
   State<CarRegistion> createState() => _MyCarRegistion();
 }
 
+List<String> carRegisters = [
+  // "กค6969","AABBCC",
+];
+
 class _MyCarRegistion extends State<CarRegistion> {
   @override
   Widget build(BuildContext context) {
@@ -61,6 +65,16 @@ class PortraitContent extends StatefulWidget {
 
 class _ProtraitState extends State<PortraitContent> {
   @override
+  void initState() {
+    // TODO: implement initState
+    setState(() {
+      carRegisters = CarRegistions.getToken() ?? [];
+      // carRegisters[index] = carRegisters[index];
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final inputcontroller = TextEditingController();
     return Column(
@@ -81,7 +95,7 @@ class _ProtraitState extends State<PortraitContent> {
                   decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.car_crash),
                       suffixIcon: TextButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (inputcontroller.value.text == '') {
                             Get.showSnackbar(const GetSnackBar(
                               title: tError,
@@ -91,10 +105,13 @@ class _ProtraitState extends State<PortraitContent> {
                           } else {
                             // แก้ได้
                             setState(() {
-                              carRegister = carRegister;
+                              carRegisters = CarRegistions.getToken() ?? [];
+
+                              //carRegister = carRegister;
                             });
                             // แก้ได้
-                            carRegister.add(inputcontroller.value.text);
+                            carRegisters.add(inputcontroller.value.text);
+                            await CarRegistions.SetCarRegister(carRegisters);
                           }
                         },
                         child: const Text("ADD"),
@@ -153,7 +170,7 @@ class _ProtraitState extends State<PortraitContent> {
           child: AnimationLimiter(
             child: ListView.builder(
               physics: const BouncingScrollPhysics(),
-              itemCount: carRegister.length,
+              itemCount: carRegisters.length,
               itemBuilder: (BuildContext context, int index) {
                 return AnimationConfiguration.staggeredList(
                   position: index,
@@ -173,7 +190,7 @@ class _ProtraitState extends State<PortraitContent> {
                           duration: const Duration(milliseconds: 400),
                           child: ListTile(
                             leading: const Icon(Icons.car_rental),
-                            title: Text(carRegister[index]),
+                            title: Text((carRegisters[index])),
                             subtitle: const Text("Your Car Register"),
                             trailing: IconButton(
                               icon: const Icon(
@@ -183,10 +200,15 @@ class _ProtraitState extends State<PortraitContent> {
                               onPressed: () {
                                 // แก้ได้
                                 setState(() {
-                                  carRegister[index] = carRegister[index];
+                                  carRegisters =
+                                      CarRegistions.getToken(index) ?? [];
+                                  // carRegisters[index] = carRegisters[index];
                                 });
                                 // แก้ได้
-                                carRegister.remove(carRegister[index]);
+                                CarRegistions.delete();
+                                carRegisters.remove(carRegisters[index]);
+                                CarRegistions.SetCarRegister(carRegisters);
+                                //carRegisters.remove(carRegisters[index]);
                               },
                             ),
 
@@ -247,10 +269,10 @@ class _LanscapeContentState extends State<LanscapeContent> {
                             } else {
                               // แก้ได้
                               setState(() {
-                                carRegister = carRegister;
+                                carRegisters = carRegisters;
                               });
                               // แก้ได้
-                              carRegister.add(inputcontroller.value.text);
+                              carRegisters.add(inputcontroller.value.text);
                             }
                           },
                           child: const Text("ADD"),
@@ -310,7 +332,7 @@ class _LanscapeContentState extends State<LanscapeContent> {
           child: AnimationLimiter(
             child: ListView.builder(
               physics: const BouncingScrollPhysics(),
-              itemCount: carRegister.length,
+              itemCount: carRegisters.length,
               itemBuilder: (BuildContext context, int index) {
                 return AnimationConfiguration.staggeredList(
                   position: index,
@@ -329,7 +351,7 @@ class _LanscapeContentState extends State<LanscapeContent> {
                           duration: const Duration(milliseconds: 400),
                           child: ListTile(
                             leading: const Icon(Icons.car_rental),
-                            title: Text(carRegister[index]),
+                            title: Text(carRegisters[index]),
                             subtitle: const Text("Your Car Register"),
                             trailing: IconButton(
                               icon: const Icon(
@@ -339,10 +361,10 @@ class _LanscapeContentState extends State<LanscapeContent> {
                               onPressed: () {
                                 // แก้ได้
                                 setState(() {
-                                  carRegister[index] = carRegister[index];
+                                  carRegisters[index] = carRegisters[index];
                                 });
                                 // แก้ได้
-                                carRegister.remove(carRegister[index]);
+                                carRegisters.remove(carRegisters[index]);
                               },
                             ),
 

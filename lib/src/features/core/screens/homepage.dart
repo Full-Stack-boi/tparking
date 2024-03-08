@@ -22,9 +22,9 @@ bool _VIsible = false;
 class _HomepageState extends State<Homepage> {
   Location location = Location();
   double? distance;
-  late double lat1, lng1;
   double tnilag = 100.6284;
   double tnilat = 13.7380;
+  late double lat1, lng1;
   final nowTimes = DateTime.now();
 
   @override

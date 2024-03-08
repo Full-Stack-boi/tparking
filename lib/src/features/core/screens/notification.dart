@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tparking/src/common_widgets/constants/sizes.dart';
-import 'package:tparking/src/features/core/screens/reserves/car_register_list.dart';
+import 'package:tparking/src/features/core/screens/car_registion.dart';
 
 class TPNotification extends StatefulWidget {
   const TPNotification({super.key});
@@ -51,7 +51,7 @@ class _MyTPNotification extends State<TPNotification> {
                           duration: Duration(seconds: 3),
                         ));
                       } else {
-                        carRegister.add(inputcontroller.value.text);
+                        carRegisters.add(inputcontroller.value.text);
                       }
                     },
                     child: const Text("ADD"),
@@ -71,7 +71,7 @@ class _MyTPNotification extends State<TPNotification> {
                           duration: Duration(seconds: 3),
                         ));
                       } else {
-                        carRegister.remove(inputcontroller.value.text);
+                        carRegisters.remove(inputcontroller.value.text);
                       }
                     },
                     child: const Text("Remove"),
