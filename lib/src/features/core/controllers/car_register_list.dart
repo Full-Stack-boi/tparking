@@ -2,12 +2,18 @@
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CarRegistions {
+class SharedPreference {
   static late SharedPreferences _preferences;
   static const _keyCar = "CarRegister";
+  static const _Parkingkey = "_Parkingkey";
 
   static Future init() async =>
       _preferences = await SharedPreferences.getInstance();
+
+  static Future SetParking_id(String Parking_id) async =>
+      await _preferences.setString(_Parkingkey, Parking_id);
+
+  static String? getID() => _preferences.getString(_Parkingkey);
 
   static Future SetCarRegister(List<String> CarRegister) async =>
       await _preferences.setStringList(_keyCar, CarRegister);
@@ -16,4 +22,6 @@ class CarRegistions {
       _preferences.getStringList(_keyCar);
 
   static Future<bool> delete([int? index]) => _preferences.remove(_keyCar);
+
+  static Future<bool> ParkIDdelete() => _preferences.remove(_Parkingkey);
 }

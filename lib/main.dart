@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 //import 'package:get/get_navigation/get_navigation.dart';
 import 'package:tparking/firebase_options.dart';
-import 'package:tparking/src/features/core/screens/reserves/car_register_list.dart';
+import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 //import 'package:tparking/src/features/authentication/screens/splash_screen/welcome/welcome_screen.dart';
 //import 'package:tparking/src/features/authentication/screens/splash_screen/splash_screen.dart';
 import 'package:tparking/src/repository/authentication_repository/authentication_repository.dart';
@@ -24,7 +24,7 @@ Future<void> main() async {
       .then((value) => Get.put(AuthenticationRepository()));
   FirebaseApi().initNotifications();
   tz.initializeTimeZones();
-  await CarRegistions.init();
+  await SharedPreference.init();
   runApp(const MyApp());
 }
 

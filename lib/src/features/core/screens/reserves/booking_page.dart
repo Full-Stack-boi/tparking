@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tparking/src/common_widgets/constants/colors.dart';
-import 'package:tparking/src/features/core/screens/reserves/car_register_list.dart';
+import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 
 import '../../../../common_widgets/constants/text_string.dart';
 import '../../../authentication/models/user_model.dart';
@@ -104,7 +104,7 @@ class _BookingPageState extends State<BookingPage> {
                                   // constraints: BoxConstraints(maxHeight:200),
                                   fit: FlexFit.loose),
                               // items: carRegisters,
-                              items: CarRegistions.getToken() ?? [],
+                              items: SharedPreference.getToken() ?? [],
                               dropdownDecoratorProps:
                                   const DropDownDecoratorProps(
                                 dropdownSearchDecoration: InputDecoration(

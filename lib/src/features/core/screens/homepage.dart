@@ -8,6 +8,7 @@ import 'package:location/location.dart';
 //import '../../../repository/authentication_repository/authentication_repository.dart';
 import '../../../common_widgets/constants/colors.dart';
 import '../../controllers/parking_controllers.dart';
+import '../controllers/car_register_list.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -50,6 +51,7 @@ class _HomepageState extends State<Homepage> {
     }
 
     late ParkingController parkingController = Get.put(ParkingController());
+
     // ignore: non_constant_identifier_names
     void ResetParked() {
       parkingController.parkUpdate(parkingController.slot1KEY);
@@ -134,8 +136,11 @@ class _HomepageState extends State<Homepage> {
                                         lat1, lng1, tnilat, tnilag);
                                   });
                                   if (distance! <= 0.15) {
+                                    SharedPreference.SetParking_id(
+                                            parkingController.slotIdPraked)
+                                        .toString();
                                     parkingController.checkoutupdate(
-                                        parkingController.slotIdPraked);
+                                        SharedPreference.getID());
                                     setState(() {
                                       _VIsible = _VIsible;
                                     });
@@ -184,7 +189,7 @@ class _HomepageState extends State<Homepage> {
                             width: 300,
                             child: FilledButton(
                                 onPressed: () {
-                                  if (parkingController.isParked == false) {
+                                  if (SharedPreference.getID() == null) {
                                     showDialog(
                                         context: context,
                                         builder: (context) {
@@ -194,8 +199,9 @@ class _HomepageState extends State<Homepage> {
                                           );
                                         });
                                   } else {
-                                    parkingController.parkUpdate(
-                                        parkingController.checkslotId);
+                                    parkingController
+                                        .parkUpdate(SharedPreference.getID());
+                                    SharedPreference.ParkIDdelete();
                                     showDialog(
                                         context: context,
                                         builder: (context) {
@@ -208,7 +214,8 @@ class _HomepageState extends State<Homepage> {
 
                                   //AuthenticationRepository.instance.logout();
                                 },
-                                child: //Text(parkingController.checkslotId.toString()))
+                                child:
+                                    // Text(CarRegistions.getID().toString())))
                                     const Text('CHECK-OUT'))),
                       ),
                     ),

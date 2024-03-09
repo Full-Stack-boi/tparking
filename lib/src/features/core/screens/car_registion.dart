@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:tparking/src/common_widgets/constants/sizes.dart';
-import 'package:tparking/src/features/core/screens/reserves/car_register_list.dart';
+import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 
 import '../../../common_widgets/constants/colors.dart';
 import '../../../common_widgets/constants/text_string.dart';
@@ -68,7 +68,7 @@ class _ProtraitState extends State<PortraitContent> {
   void initState() {
     // TODO: implement initState
     setState(() {
-      carRegisters = CarRegistions.getToken() ?? [];
+      carRegisters = SharedPreference.getToken() ?? [];
       // carRegisters[index] = carRegisters[index];
     });
     super.initState();
@@ -105,13 +105,13 @@ class _ProtraitState extends State<PortraitContent> {
                           } else {
                             // แก้ได้
                             setState(() {
-                              carRegisters = CarRegistions.getToken() ?? [];
+                              carRegisters = SharedPreference.getToken() ?? [];
 
                               //carRegister = carRegister;
                             });
                             // แก้ได้
                             carRegisters.add(inputcontroller.value.text);
-                            await CarRegistions.SetCarRegister(carRegisters);
+                            await SharedPreference.SetCarRegister(carRegisters);
                           }
                         },
                         child: const Text("ADD"),
@@ -201,13 +201,13 @@ class _ProtraitState extends State<PortraitContent> {
                                 // แก้ได้
                                 setState(() {
                                   carRegisters =
-                                      CarRegistions.getToken(index) ?? [];
+                                      SharedPreference.getToken(index) ?? [];
                                   // carRegisters[index] = carRegisters[index];
                                 });
                                 // แก้ได้
-                                CarRegistions.delete();
+                                SharedPreference.delete();
                                 carRegisters.remove(carRegisters[index]);
-                                CarRegistions.SetCarRegister(carRegisters);
+                                SharedPreference.SetCarRegister(carRegisters);
                                 //carRegisters.remove(carRegisters[index]);
                               },
                             ),
