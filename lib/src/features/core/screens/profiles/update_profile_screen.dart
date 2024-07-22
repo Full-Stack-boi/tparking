@@ -248,7 +248,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text(snapshot.error.toString()));
                   } else {
-                    return const Center(child: Text('Sommthing went wrong'));
+                    return const Center(child: Text('Something went wrong'));
                   }
                 } else {
                   return const Center(child: CircularProgressIndicator());
