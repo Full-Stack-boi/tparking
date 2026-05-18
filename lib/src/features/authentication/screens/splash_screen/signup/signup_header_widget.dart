@@ -28,11 +28,16 @@ class FormHeaderWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: crossAxisAlignment,
       children: [
-        Image(image: AssetImage(image), color: imageColor, height: size.height * imageHeight,
-        width: 400,),
+        Image(
+          image: AssetImage(image),
+          color: imageColor,
+          height: size.height * imageHeight,
+          width: 400,
+        ),
         SizedBox(height: heightBetween),
         Text(title, style: Theme.of(context).textTheme.displayLarge),
-        Text(subTitle, textAlign: textAlign, style: Theme.of(context).textTheme.bodyLarge),
+        Text(subTitle,
+            textAlign: textAlign, style: Theme.of(context).textTheme.bodyLarge),
       ],
     );
   }

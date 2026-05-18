@@ -9,49 +9,50 @@ class ForgetPasswordMailScreen extends StatefulWidget {
   const ForgetPasswordMailScreen({Key? key}) : super(key: key);
 
   @override
-  State<ForgetPasswordMailScreen> createState() => _ForgetPasswordMailScreenState();
+  State<ForgetPasswordMailScreen> createState() =>
+      _ForgetPasswordMailScreenState();
 }
-
 
 class _ForgetPasswordMailScreenState extends State<ForgetPasswordMailScreen> {
   final _emailControllers = TextEditingController();
 
   @override
-void dispose() {
-  _emailControllers.dispose();
-  super.dispose();
-}
-
- Future passwordReset()  async{
-  try {
-   await FirebaseAuth.instance.sendPasswordResetEmail(email: _emailControllers.text.trim());
-   // ignore: use_build_context_synchronously
-   showDialog(context: context,
-     builder: (context){
-      return  const AlertDialog(
-        content: Text("Password reset link has been sent! "),
-      );
-    }
-    );
-  } on FirebaseAuthException catch (e) 
-  {
-    // ignore: use_build_context_synchronously
-    showDialog(context: context,
-     builder: (context){
-      return AlertDialog(
-        content: Text(e.message.toString()),
-      );
-    }
-    );
+  void dispose() {
+    _emailControllers.dispose();
+    super.dispose();
   }
-}
+
+  Future passwordReset() async {
+    try {
+      await FirebaseAuth.instance
+          .sendPasswordResetEmail(email: _emailControllers.text.trim());
+      // ignore: use_build_context_synchronously
+      showDialog(
+          context: context,
+          builder: (context) {
+            return const AlertDialog(
+              content: Text("Password reset link has been sent! "),
+            );
+          });
+    } on FirebaseAuthException catch (e) {
+      // ignore: use_build_context_synchronously
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text(e.message.toString()),
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  SafeArea(
+    return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Forget Password", style: Theme.of(context).textTheme.headlineMedium),
+          title: Text("Forget Password",
+              style: Theme.of(context).textTheme.headlineMedium),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -60,22 +61,25 @@ void dispose() {
               children: [
                 // const SizedBox(height: tDefaultSize * 4),
                 Column(
-                  children: [Lottie.asset('assets/animation/Forget_password.json')],
+                  children: [
+                    Lottie.asset('assets/animation/Forget_password.json')
+                  ],
                 ),
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(tForgetPassword.toUpperCase()),
-                  
-                ],
+                  children: [
+                    Text(tForgetPassword.toUpperCase()),
+                  ],
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(tForgetMailSubTitle)
-                  ],
+                  children: [Text(tForgetMailSubTitle)],
                 ),
                 // FormHeaderWidget(
                 //   image: tForgetPasswordImage,
@@ -94,17 +98,17 @@ void dispose() {
                         decoration: const InputDecoration(
                             label: Text(tEmail),
                             hintText: tEmail,
-                            prefixIcon: Icon(Icons.mail_outline_rounded)
-                            ),
+                            prefixIcon: Icon(Icons.mail_outline_rounded)),
                       ),
-                       const SizedBox(height: 20.0),
+                      const SizedBox(height: 20.0),
                       SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(onPressed:(){
-                          passwordReset();
-                          //Get.off(LoginScreen(),duration:Duration(seconds: 2) );
-                          },
-                          child: const Text("RESET PASSWORD")),
+                        width: double.infinity,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              passwordReset();
+                              //Get.off(LoginScreen(),duration:Duration(seconds: 2) );
+                            },
+                            child: const Text("RESET PASSWORD")),
                       ),
                     ],
                   ),

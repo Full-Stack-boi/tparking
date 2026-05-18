@@ -49,7 +49,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '370298050681',
     projectId: 'tparking-8a873',
     authDomain: 'tparking-8a873.firebaseapp.com',
-    databaseURL: 'https://tparking-8a873-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://tparking-8a873-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'tparking-8a873.appspot.com',
     measurementId: 'G-P7GF0ESWN5',
   );
@@ -68,7 +69,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '370298050681',
     projectId: 'tparking-8a873',
     storageBucket: 'tparking-8a873.appspot.com',
-    iosClientId: '370298050681-j5m23oife0m8jis2v8u62p0uefv3bl8n.apps.googleusercontent.com',
+    iosClientId:
+        '370298050681-j5m23oife0m8jis2v8u62p0uefv3bl8n.apps.googleusercontent.com',
     iosBundleId: 'com.example.tparking',
   );
 
@@ -78,7 +80,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '370298050681',
     projectId: 'tparking-8a873',
     storageBucket: 'tparking-8a873.appspot.com',
-    iosClientId: '370298050681-6d84f1ok4t354ph5obiiu3456ibllphs.apps.googleusercontent.com',
+    iosClientId:
+        '370298050681-6d84f1ok4t354ph5obiiu3456ibllphs.apps.googleusercontent.com',
     iosBundleId: 'com.example.tparking.RunnerTests',
   );
 }

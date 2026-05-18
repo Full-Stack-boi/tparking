@@ -1,34 +1,33 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../../../main.dart';
 
-Future<void> handleBackgroundMessage(RemoteMessage message) async{
-}
+Future<void> handleBackgroundMessage(RemoteMessage message) async {}
 
 class FirebaseApi {
-    final _firebaseMessaging = FirebaseMessaging.instance;
-    Future<void> initNotifications () async{
-      await _firebaseMessaging.requestPermission();
+  final _firebaseMessaging = FirebaseMessaging.instance;
+  Future<void> initNotifications() async {
+    await _firebaseMessaging.requestPermission();
 
-      // final fCMToken = await _firebaseMessaging.getToken();
+    // final fCMToken = await _firebaseMessaging.getToken();
 
-      // print('Token: $fCMToken');
-      // FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
+    // print('Token: $fCMToken');
+    // FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 
-      initPushNotifications();
-    }
+    initPushNotifications();
+  }
 
-    void handleMessage(RemoteMessage? message) {
-        if (message == null) return;
+  void handleMessage(RemoteMessage? message) {
+    if (message == null) return;
 
-          navigatorKey.currentState?.pushNamed(
-            '/notification_screen',
-            arguments: message,
-            
-        );
-    }
-    Future initPushNotifications() async{
-        FirebaseMessaging.instance.getInitialMessage().then(handleMessage);
+    navigatorKey.currentState?.pushNamed(
+      '/notification_screen',
+      arguments: message,
+    );
+  }
 
-        FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
-    }
+  Future initPushNotifications() async {
+    FirebaseMessaging.instance.getInitialMessage().then(handleMessage);
+
+    FirebaseMessaging.onMessageOpenedApp.listen(handleMessage);
+  }
 }

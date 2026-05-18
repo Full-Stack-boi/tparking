@@ -11,8 +11,6 @@ class SignUpFormWidget extends StatelessWidget {
   const SignUpFormWidget({
     Key? key,
   }) : super(key: key);
- 
-
 
   @override
   Widget build(BuildContext context) {
@@ -45,32 +43,26 @@ class SignUpFormWidget extends StatelessWidget {
                   label: Text(tPhoneNo), prefixIcon: Icon(Icons.numbers)),
             ),
             const SizedBox(height: tFormHeight - 20),
-              DropdownSearch<String>(
-                // selectedItem: "Student",
-    popupProps:  const PopupProps.menu(
-        showSelectedItems: true,
-        isFilterOnline: true,
-        // constraints: BoxConstraints(maxHeight:200),
-        fit: FlexFit.loose,
-       
-        
-    ),
-    items:  const ["Student",'Teacher',"Another"],
-    dropdownDecoratorProps: const DropDownDecoratorProps(
-        dropdownSearchDecoration: InputDecoration(
-          prefixIcon: Icon(Icons.badge_rounded),
-            labelText: "Chooce Your Roles",
-            hintText: "Select Roles",
-        ),
-    ),
-    onChanged: (value) {
-      
-        controllers.roles.text = value!;
-      
-                       },
-                     
-    
-),//Te
+            DropdownSearch<String>(
+              // selectedItem: "Student",
+              popupProps: const PopupProps.menu(
+                showSelectedItems: true,
+                isFilterOnline: true,
+                // constraints: BoxConstraints(maxHeight:200),
+                fit: FlexFit.loose,
+              ),
+              items: const ["Student", 'Teacher', "Another"],
+              dropdownDecoratorProps: const DropDownDecoratorProps(
+                dropdownSearchDecoration: InputDecoration(
+                  prefixIcon: Icon(Icons.badge_rounded),
+                  labelText: "Chooce Your Roles",
+                  hintText: "Select Roles",
+                ),
+              ),
+              onChanged: (value) {
+                controllers.roles.text = value!;
+              },
+            ), //Te
             // TextFormField(
             //   controller: controllers.roles,
             //   decoration: const InputDecoration(
@@ -94,7 +86,7 @@ class SignUpFormWidget extends StatelessWidget {
                       phoneNo: controllers.phoneNo.text.trim(),
                       // phoneNo:  List.filled(1, controllers.phoneNo.text.trim(),growable: true) ,
                       fullName: controllers.fullName.text.trim(),
-                      roles:controllers.roles.text.trim(),
+                      roles: controllers.roles.text.trim(),
                     );
                     SignUpController.instance.createUser(user);
                   }

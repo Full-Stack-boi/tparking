@@ -8,20 +8,20 @@ class ProfileController extends GetxController {
   final _authRepo = Get.put(AuthenticationRepository());
   final _userRepo = Get.put(UserRepository());
 
-  getUserData(){
+  getUserData() {
     final email = _authRepo.firebaseUser.value?.email;
-    if(email != null){
+    if (email != null) {
       return _userRepo.getUserDetails(email);
-    }
-    else {
+    } else {
       Get.snackbar("Error", "Login to continue");
     }
   }
-  Future<List<UserModel>> getAllUser() async{
+
+  Future<List<UserModel>> getAllUser() async {
     return await _userRepo.allUser();
   }
-  updateRecord(UserModel user) async{
+
+  updateRecord(UserModel user) async {
     await _userRepo.updateUserRecord(user);
   }
-  
 }
