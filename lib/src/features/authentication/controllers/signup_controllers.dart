@@ -1,5 +1,4 @@
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tparking/src/features/authentication/models/user_model.dart';
@@ -21,13 +20,9 @@ class SignUpController extends GetxController {
 
   //Call this Function from Design & it will do the rest
   void registerUser(String email, String password) async {
-    // String? error =
     AuthenticationRepository.instance
         .createUserWithEmailAndPassword(email, password)
         .toString();
-    //  if(error != null) {5
-    //    Get.showSnackbar(GetSnackBar(message: error.toString(),));
-    //  }
   }
 
   void createUser(UserModel user) async {
@@ -39,25 +34,15 @@ class SignUpController extends GetxController {
     } else {
       bool isValid = EmailValidator.validate(email.text);
       if (isValid == true) {
-        // 1. Register the user in Firebase Auth first
+        // Register user and create database profile sequentially
         await AuthenticationRepository.instance
-            .createUserWithEmailAndPassword(user.email, user.password);
-
-        // 2. Only write additional user details to Firestore if authentication succeeded
-        if (FirebaseAuth.instance.currentUser != null) {
-          await userRepo.createUser(user);
-        }
+            .createUserWithEmailAndPassword(user.email, user.password, user);
       } else {
         Get.showSnackbar(const GetSnackBar(
           message: "Please Enter infrom @gmail.com",
           duration: Duration(seconds: 3),
         ));
       }
-      // if (email.text == "" ||email.text != '@gmail' ) {
-      //   Get.showSnackbar(const GetSnackBar(message: "Please Enter infrom @gmail.com",duration: Duration(seconds: 3),));
-      // } else {
-
-      // }
     }
   }
 }
