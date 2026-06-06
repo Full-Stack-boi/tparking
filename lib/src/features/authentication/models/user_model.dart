@@ -1,19 +1,14 @@
-//import 'dart:typed_data';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
-//final _auth = FirebaseAuth.instance.currentUser;
+import '../../../utils/encryption_helper.dart';
 
 class UserModel {
   final String? id;
   final String fullName;
   final String email;
-  // final List<String> phoneNo;
   final String phoneNo;
   final String password;
   final String roles;
   final String? imgaeLink;
-  //final Uint8List? file;
+  final List<String> carRegistrations;
 
   UserModel(
       {this.imgaeLink,
@@ -22,28 +17,57 @@ class UserModel {
       required this.email,
       required this.phoneNo,
       required this.password,
-      required this.roles});
+      required this.roles,
+      this.carRegistrations = const []});
+
   toJson() {
     return {
-      "Fullname": fullName,
-      "Email": email,
-      "Password": password,
-      "PhoneNo": phoneNo,
-      "Roles": roles,
+      "fullName": fullName,
+      "email": email,
+      "phoneNo": phoneNo,
+      "roles": roles,
       "imgaeLink": imgaeLink,
+      "car_registrations": carRegistrations.map((car) => EncryptionHelper.encrypt(car)).toList(),
     };
   }
 
-  factory UserModel.fromSnapshot(
-      DocumentSnapshot<Map<String, dynamic>> document) {
-    final data = document.data()!;
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    List<String> rawCars = [];
+    final carRegsData = json["car_registrations"];
+    
+    if (carRegsData is List) {
+      rawCars = List<String>.from(carRegsData.map((e) => e?.toString() ?? ''));
+    } else if (carRegsData is String) {
+      if (carRegsData.isNotEmpty && carRegsData != '{}' && carRegsData != '[]') {
+        // Handle raw Postgres array formats like "{car1,car2}" or JSON string arrays
+        final clean = carRegsData
+            .replaceAll('{', '')
+            .replaceAll('}', '')
+            .replaceAll('[', '')
+            .replaceAll(']', '')
+            .replaceAll('"', '')
+            .replaceAll("'", "");
+        rawCars = clean
+            .split(',')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+      }
+    }
+
+    final decryptedCars = rawCars.map((car) => EncryptionHelper.decrypt(car)).toList();
+
     return UserModel(
-        id: document.id,
-        fullName: data["Fullname"],
-        email: data["Email"],
-        phoneNo: data["PhoneNo"],
-        password: data["Password"],
-        roles: data["Roles"],
-        imgaeLink: data["imgaeLink"]);
+      id: json["id"]?.toString(),
+      fullName: json["fullName"] ?? "",
+      email: json["email"] ?? "",
+      phoneNo: json["phoneNo"] ?? "",
+      password: json["password"] ?? "",
+      roles: json["roles"] ?? "",
+      imgaeLink: (json["imgaeLink"]?.toString() == 'null' || json["imgaeLink"]?.toString() == '')
+          ? null
+          : json["imgaeLink"]?.toString(),
+      carRegistrations: decryptedCars,
+    );
   }
 }
