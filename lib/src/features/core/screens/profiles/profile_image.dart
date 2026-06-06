@@ -10,14 +10,13 @@ import 'package:image_picker/image_picker.dart';
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 final FirebaseStorage _storage = FirebaseStorage.instance;
 
-picImage(ImageSource source) async {
+Future<Uint8List?> picImage(ImageSource source) async {
   final ImagePicker imagePicker = ImagePicker();
   XFile? file = await imagePicker.pickImage(source: source);
-  // XFile? file = await imagePicker.pickImage(source: source);
   if (file != null) {
     return await file.readAsBytes();
   }
-  // print("no ImageEEEEEEEEEEEEEEEEEEEEE");
+  return null;
 }
 
 Future<String> uploadimgtostorage(

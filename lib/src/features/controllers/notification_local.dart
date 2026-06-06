@@ -14,16 +14,15 @@ class NotificationLocal {
         const AndroidInitializationSettings('splash');
 
 // ignore: non_constant_identifier_names
-    var InitializationSettingsIOS = DarwinInitializationSettings(
+    var InitializationSettingsIOS = const DarwinInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
         requestCriticalPermission: true,
-        requestProvisionalPermission: true,
-        onDidReceiveLocalNotification:
-            (int? id, String? title, String? body, String? payload) async {});
+        requestProvisionalPermission: true);
     var initializationSettings = InitializationSettings(
         android: InitializationSettingsAndroid, iOS: InitializationSettingsIOS);
-    await notificationsPlugin.initialize(initializationSettings,
+    await notificationsPlugin.initialize(
+        settings: initializationSettings,
         onDidReceiveNotificationResponse:
             (NotificationResponse notificationResponse) async {});
   }
@@ -38,19 +37,23 @@ class NotificationLocal {
   Future showNotification(
       {int id = 0, String? title, String? body, String? payload}) async {
     return notificationsPlugin.show(
-        id, title, body, await notificationDetails());
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: await notificationDetails(),
+        payload: payload);
   }
 
   Future scheduleNotification(
       {int id = 0, String? title, String? body, String? payload}) async {
     return notificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.now(tz.local)
+        id: id,
+        title: title,
+        body: body,
+        scheduledDate: tz.TZDateTime.now(tz.local)
             .add(Duration(seconds: ParkingController().parkingHours.toInt())),
-        await notificationDetails(),
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime);
+        notificationDetails: await notificationDetails(),
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        payload: payload);
   }
 }

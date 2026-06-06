@@ -61,12 +61,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                     // final imgaeLink = TextEditingController(text: user.imgaeLink);
 
                     void selectImage() async {
-                      final Uint8List img = await picImage(ImageSource.gallery);
+                      final Uint8List? img = await picImage(ImageSource.gallery);
 
-                      setState(() {
-                        _image = img;
-                        saveprofile();
-                      });
+                      if (img != null) {
+                        setState(() {
+                          _image = img;
+                          saveprofile();
+                        });
+                      }
                     }
 
                     return Column(

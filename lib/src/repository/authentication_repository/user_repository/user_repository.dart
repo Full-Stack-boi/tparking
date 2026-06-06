@@ -12,19 +12,21 @@ class UserRepository extends GetxController {
 
   
 
-  createUser(UserModel user) async {
-     await _db.collection("User").add(user.toJson()).whenComplete(
-    //await _db.collection("User").doc(_auth.toString()).set(user.toJson()).whenComplete(
-      () => Get.showSnackbar(const GetSnackBar( title: "Success",message:  "You account has been created. ",
-      duration: Duration(seconds: 2),)),
-   )
-  // ignore: body_might_complete_normally_catch_error
-  .catchError((error,stackTrace){
-     Get.showSnackbar(const GetSnackBar( title: tError,message: "Somthing went wrong. Try again. ",
-     duration: Duration(seconds: 2)));
+  Future<void> createUser(UserModel user) async {
+    try {
+      await _db.collection("User").add(user.toJson());
+      Get.showSnackbar(const GetSnackBar(
+        title: "Success",
+        message: "You account has been created. ",
+        duration: Duration(seconds: 2),
+      ));
+    } catch (error) {
+      Get.showSnackbar(const GetSnackBar(
+        title: tError,
+        message: "Somthing went wrong. Try again. ",
+        duration: Duration(seconds: 2),
+      ));
     }
-   );
-    
   }
   Future<UserModel> getUserDetails(String email) async{
     final snapshot = await _db.collection("User").where("Email",isEqualTo: email).get();
