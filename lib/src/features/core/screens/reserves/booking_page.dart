@@ -107,7 +107,7 @@ class _BookingPageState extends State<BookingPage> {
                                   // constraints: BoxConstraints(maxHeight:200),
                                   fit: FlexFit.loose),
                               // items: carRegisters,
-                              items: SharedPreference.getToken() ?? [],
+                              items: user.carRegistrations,
                               dropdownDecoratorProps:
                                   const DropDownDecoratorProps(
                                 dropdownSearchDecoration: InputDecoration(
@@ -116,7 +116,7 @@ class _BookingPageState extends State<BookingPage> {
                                 ),
                               ),
                               onChanged: (value) {
-                                parkingController.name.text = value!;
+                                parkingController.carRegistrationController.text = value!;
                               },
                             ) //TextFormField(
                                 //   decoration: const InputDecoration(
@@ -223,7 +223,7 @@ class _BookingPageState extends State<BookingPage> {
                           children: [
                             ElevatedButton(
                               onPressed: () {
-                                if (parkingController.name.text == "") {
+                                if (parkingController.carRegistrationController.text == "") {
                                   Get.showSnackbar(const GetSnackBar(
                                     title: tError,
                                     message:
@@ -249,7 +249,7 @@ class _BookingPageState extends State<BookingPage> {
                                     } else {
                                       parkingController
                                           .updateData(widget.slotId);
-                                      parkingController.name.text = '';
+                                      parkingController.carRegistrationController.text = '';
                                     }
                                   }
                                 }

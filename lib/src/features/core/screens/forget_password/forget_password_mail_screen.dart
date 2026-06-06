@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -24,8 +24,8 @@ class _ForgetPasswordMailScreenState extends State<ForgetPasswordMailScreen> {
 
   Future passwordReset() async {
     try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: _emailControllers.text.trim());
+      await Supabase.instance.client.auth
+          .resetPasswordForEmail(_emailControllers.text.trim());
       // ignore: use_build_context_synchronously
       showDialog(
           context: context,
@@ -34,7 +34,7 @@ class _ForgetPasswordMailScreenState extends State<ForgetPasswordMailScreen> {
               content: Text("Password reset link has been sent! "),
             );
           });
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       // ignore: use_build_context_synchronously
       showDialog(
           context: context,
