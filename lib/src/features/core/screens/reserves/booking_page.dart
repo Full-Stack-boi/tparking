@@ -26,12 +26,15 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     ParkingController parkingController = Get.put(ParkingController());
     final nowTimes = DateTime.now();
     final controller = Get.put(ProfileController());
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: tPrimaryColor,
+        backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
+        elevation: 3.0,
+        shadowColor: isDark ? Colors.black54 : Colors.black12,
         title: const Text(
           "BOOK SLOT",
           style: TextStyle(
@@ -218,7 +221,7 @@ class _BookingPageState extends State<BookingPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            FilledButton(
+                            ElevatedButton(
                               onPressed: () {
                                 if (parkingController.name.text == "") {
                                   Get.showSnackbar(const GetSnackBar(
@@ -250,19 +253,23 @@ class _BookingPageState extends State<BookingPage> {
                                     }
                                   }
                                 }
-
-                                //NotificationLocal().showNotification(title: 'Time',body: 'asdasd');
-                                //parkingController.slotIdPraked.toString()  ==  slotId;
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 60, vertical: 20),
-                                child: const Text(
-                                  "BOOK NOW",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: tPrimaryColor,
+                                foregroundColor: tDarkColor,
+                                elevation: 3,
+                                shadowColor: Colors.black26,
+                                side: BorderSide.none,
+                                minimumSize: const Size(200, 48),
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+                                shape: const StadiumBorder(),
+                              ),
+                              child: const Text(
+                                "BOOK NOW",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
                                 ),
                               ),
                             )

@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 import 'package:tparking/src/features/core/screens/dashboard/dashboard.dart';
 //import '../config/colors.dart';
 import '../models/car_model.dart';
@@ -38,17 +40,27 @@ class ParkingController extends GetxController {
   var slot6 = CarModel().obs;
   var slot7 = CarModel().obs;
   var slot8 = CarModel().obs;
-  // ignore: prefer_typing_uninitialized_variables
-  var isBooked;
+  final isBooked = false.obs;
   late String slotIdPraked = '';
   late String checkslotId = '';
-  // ignore: prefer_typing_uninitialized_variables
-  var isParked = false;
+  final isParked = false.obs;
+
+  final List<StreamSubscription> _subscriptions = [];
 
   @override
   void onInit() {
     super.onInit();
-    startDataUpdates();
+    isParked.value = SharedPreference.getID() != null;
+    getData();
+  }
+
+  @override
+  void onClose() {
+    for (var sub in _subscriptions) {
+      sub.cancel();
+    }
+    name.dispose();
+    super.onClose();
   }
 
   void updateData(slotId) async {
@@ -61,7 +73,7 @@ class ParkingController extends GetxController {
       },
     );
     slotIdPraked = slotId;
-    isBooked = true;
+    isBooked.value = true;
     if (kDebugMode) {
       print("Data Updated");
     }
@@ -103,21 +115,21 @@ class ParkingController extends GetxController {
         ));
 
     if (slotId == slot1KEY) {
-      slot1Controller();
+      startSlotTimer(slot1KEY, slot1);
     } else if (slotId == slot2KEY) {
-      slot2Controller();
+      startSlotTimer(slot2KEY, slot2);
     } else if (slotId == slot3KEY) {
-      slot3Controller();
+      startSlotTimer(slot3KEY, slot3);
     } else if (slotId == slot4KEY) {
-      slot4Controller();
+      startSlotTimer(slot4KEY, slot4);
     } else if (slotId == slot5KEY) {
-      slot5Controller();
+      startSlotTimer(slot5KEY, slot5);
     } else if (slotId == slot6KEY) {
-      slot6Controller();
+      startSlotTimer(slot6KEY, slot6);
     } else if (slotId == slot7KEY) {
-      slot7Controller();
+      startSlotTimer(slot7KEY, slot7);
     } else {
-      slot8Controller();
+      startSlotTimer(slot8KEY, slot8);
     }
     slotIdPraked = slotId;
     checkslotId = slotIdPraked;
@@ -130,451 +142,111 @@ class ParkingController extends GetxController {
         "parkingHours": 0.0.toString(),
       },
     );
-    isParked = true;
+    isParked.value = true;
   }
 
   parkUpdate(checkslotId) async {
     await fb.ref().child(checkslotId).update(
       {"isParked": false, "booked": false, "name": ""},
     );
-    isParked = false;
+    isParked.value = false;
   }
 
-  void startDataUpdates() async {
-    while (true) {
-      getData();
-      await Future.delayed(const Duration(seconds: 1));
-      // if (kDebugMode) {
-      //   print("Data loaded");
-      // }
-    }
-  }
-  //  parkUpdate (){
-  //   isParked = false;
-  // }
+  void getData() {
+    if (_subscriptions.isNotEmpty) return;
 
-  void getData() async {
-    final DatabaseReference res1 = fb.ref().child(slot1KEY);
-    res1.onValue.listen((event) {
+    _subscriptions.add(fb.ref().child(slot1KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot1.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res2 = fb.ref().child(slot2KEY);
-    res2.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot2KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot2.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res3 = fb.ref().child(slot3KEY);
-    res3.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot3KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot3.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res4 = fb.ref().child(slot4KEY);
-    res4.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot4KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot4.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res5 = fb.ref().child(slot5KEY);
-    res5.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot5KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot5.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res6 = fb.ref().child(slot6KEY);
-    res6.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot6KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot6.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res7 = fb.ref().child(slot7KEY);
-    res7.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot7KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot7.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
-    final DatabaseReference res8 = fb.ref().child(slot8KEY);
-    res8.onValue.listen((event) {
+    }));
+    _subscriptions.add(fb.ref().child(slot8KEY).onValue.listen((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       slot8.value = CarModel.fromJson(
         json.decode(
           json.encode(dataSnapshot.value),
         ),
       );
-    });
+    }));
   }
-  // void deleteData() {
-  //   _databaseReference.remove();
-  // }
 
   void addCar(CarModel car) {
     fb.ref().push().set(car.toJson());
   }
 
-  slot1Controller() async {
-    double time = double.parse(slot1.value.parkingHours.toString());
+  void startSlotTimer(String slotKey, Rx<CarModel> slotObs) async {
+    double time = double.parse(slotObs.value.parkingHours.toString());
 
     while (time != 0) {
       await Future.delayed(const Duration(seconds: 1)); // for testing
       //await Future.delayed(Duration(minutes: 1)); ---> use for publicshed
       time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot1KEY).update(
+      await fb.ref().child(slotKey).update(
         {
           "parkingHours": time.toString(),
         },
       );
     }
 
-    if (isParked == false) {
-      await fb.ref().child(slot1KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-// await fb.ref().child(slot1KEY).update(
-//       {
-//         "booked": false,
-//         "name":""
-//       },
-//     );
-
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 1 time ended : Slot 1 updated");
-    // }
-  }
-
-  void slot2Controller() async {
-    double time = double.parse(slot2.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot2KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot2KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-    // await fb.ref().child(slot2KEY).update(
-    //     {
-    //     //  "paymentDone": false,
-    //       "booked": false,
-    //       "isParked": false,
-    //       "name":""
-    //     },
-    //   );
-
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 2 time ended : Slot 2 updated");
-    // }
-  }
-
-  void slot3Controller() async {
-    double time = double.parse(slot3.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot3KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot3KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
+    if (isParked.value == false) {
+      await fb.ref().child(slotKey).update(
+        {"booked": false, "isParked": false, "name": ""},
       );
       NotificationLocal().scheduleNotification(
           title: 'Alert', body: 'Your slot has been cancel');
     }
 
-    // await fb.ref().child(slot3KEY).update(
-    //   {
-    // //    "paymentDone": false,
-    //     "booked": false,
-    //     "isParked": false,
-    //     "name":""
-    //   },
-    // );
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 3 time ended : Slot 3 updated");
-    // }
-  }
-
-  void slot4Controller() async {
-    double time = double.parse(slot4.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot4KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot4KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-
-    // await fb.ref().child(slot4KEY).update(
-    //   {
-    // //    "paymentDone": false,
-    //     "booked": false,
-    //     "isParked": false,
-    //     "name":""
-    //   },
-    // );
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 4 time ended : Slot 4 updated");
-    // }
-  }
-
-  void slot5Controller() async {
-    double time = double.parse(slot5.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot5KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot5KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-
-    // await fb.ref().child(slot5KEY).update(
-    //   {
-    //  //   "paymentDone": false,
-    //     "booked": false,
-    //     "isParked": false,
-    //     "name":""
-    //   },
-    // );
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 5 time ended : Slot 5 updated");
-    // }
-  }
-
-  void slot6Controller() async {
-    double time = double.parse(slot6.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot6KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot6KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-
-    // await fb.ref().child(slot6KEY).update(
-    //   {
-    //  //   "paymentDone": false,
-    //     "booked": false,
-    //     "isParked": false,
-    //     "name":""
-    //   },
-    // );
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 6 time ended : Slot 6 updated");
-    // }
-  }
-
-  void slot7Controller() async {
-    double time = double.parse(slot7.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot7KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot7KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-
-    // await fb.ref().child(slot7KEY).update(
-    //   {
-    //   //  "paymentDone": false,
-    //     "booked": false,
-    //     "isParked": false,
-    //     "name":""
-    //   },
-    // );
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 7 time ended : Slot 7 updated");
-    // }
-  }
-
-  void slot8Controller() async {
-    double time = double.parse(slot8.value.parkingHours.toString());
-
-    while (time != 0) {
-      await Future.delayed(const Duration(seconds: 1));
-      time--;
-      // if (kDebugMode) {
-      //   print(time);
-      // }
-      await fb.ref().child(slot8KEY).update(
-        {
-          "parkingHours": time.toString(),
-        },
-      );
-    }
-
-    if (isParked == false) {
-      await fb.ref().child(slot8KEY).update(
-        {
-          //  "paymentDone": false,
-          "booked": false,
-          "isParked": false,
-          "name": ""
-        },
-      );
-      NotificationLocal().scheduleNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
-
-    // await fb.ref().child(slot8KEY).update(
-    //   {
-    // //    "paymentDone": false,
-    //     "booked": false,
-    //     "isParked": false,
-    //     "name":""
-    //   },
-    // );
-    isBooked = false;
-    // if (kDebugMode) {
-    //   print("Slot 8 time ended : Slot 8 updated");
-    // }
+    isBooked.value = false;
   }
 }

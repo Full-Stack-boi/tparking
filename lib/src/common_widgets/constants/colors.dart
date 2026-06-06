@@ -8,3 +8,4 @@ const tWhiteColor = Color.fromARGB(255, 255, 255, 255);
 const tDarkColor = Colors.black;
 const tAccentColor = Color.fromARGB(255, 255, 193, 193);
 const lightBg = Color(0xFFD1D9E6);
+const tTomatoColor = Color(0xFFFF6347);

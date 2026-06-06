@@ -16,7 +16,9 @@ class _InformationState extends State<Information> {
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(color: Colors.black),
-        backgroundColor: isDark ? Colors.black26 : tPrimaryColor,
+        backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
+        elevation: 3.0,
+        shadowColor: isDark ? Colors.black54 : Colors.black12,
         title: Text('Infometion',
             style: Theme.of(context).textTheme.headlineMedium),
         // actions: [IconButton(onPressed: () {}, icon: Icon(isDark ? LineAwesomeIcons.sun : LineAwesomeIcons.moon))],

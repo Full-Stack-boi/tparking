@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:tparking/src/common_widgets/constants/colors.dart';
 
@@ -8,63 +9,65 @@ import '../car_registion.dart';
 import '../profiles/profile.dart';
 import '../reserves/reserve.dart';
 
-class Dashboard extends StatefulWidget {
+class DashboardController extends GetxController {
+  static DashboardController get instance => Get.find();
+  final currentIndex = 0.obs;
+
+  void changeTab(int index) {
+    currentIndex.value = index;
+  }
+}
+
+class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
 
   @override
-  State<Dashboard> createState() => _MyDashboard();
-}
+  Widget build(BuildContext context) {
+    final controller = Get.put(DashboardController());
 
-class _MyDashboard extends State<Dashboard> {
-  // Pages
-  List pages = [
-    const Homepage(),
-    const Reserve(),
-    const CarRegistion(),
-    const ProfileScreen()
-  ];
-  //Pages
+    final List pages = [
+      const Homepage(),
+      const Reserve(),
+      const CarRegistion(),
+      const ProfileScreen()
+    ];
 
-  // ignore: non_constant_identifier_names
-  int Pages_currentIndex = 0;
-  void onTap(int index) {
-    setState(() {
-      Pages_currentIndex = index;
-    });
-  }
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
 
-  @override
-  Widget build(Object context) {
     return Scaffold(
-      body: PageTransitionSwitcher(
-        transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
-            FadeThroughTransition(
-                animation: primaryAnimation,
-                secondaryAnimation: secondaryAnimation,
-                child: child),
-        child: pages[Pages_currentIndex],
+      body: Obx(
+        () => PageTransitionSwitcher(
+          transitionBuilder: (child, primaryAnimation, secondaryAnimation) =>
+              FadeThroughTransition(
+                  animation: primaryAnimation,
+                  secondaryAnimation: secondaryAnimation,
+                  child: child),
+          child: pages[controller.currentIndex.value],
+        ),
       ),
-      bottomNavigationBar: SalomonBottomBar(
-          backgroundColor: tWhiteColor,
-          onTap: onTap,
-          currentIndex: Pages_currentIndex,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.grey,
-          items: [
-            SalomonBottomBarItem(
-                title: const Text("Home"), icon: const Icon(Icons.home)),
-            SalomonBottomBarItem(
-                title: const Text("Reserve"),
-                icon: const Icon(Icons.car_rental),
-                selectedColor: Colors.blueAccent),
-            SalomonBottomBarItem(
-                title: const Text("Registion"),
-                icon: const Icon(Icons.pageview)),
-            SalomonBottomBarItem(
-                title: const Text("Profile"),
-                icon: const Icon(Icons.person),
-                selectedColor: Colors.red),
-          ]),
+      bottomNavigationBar: Obx(
+        () => SalomonBottomBar(
+            backgroundColor: isDark ? Colors.black87 : tWhiteColor,
+            onTap: controller.changeTab,
+            currentIndex: controller.currentIndex.value,
+            selectedItemColor: isDark ? tPrimaryColor : Colors.black,
+            unselectedItemColor: Colors.grey,
+            items: [
+              SalomonBottomBarItem(
+                  title: const Text("Home"), icon: const Icon(Icons.home)),
+              SalomonBottomBarItem(
+                  title: const Text("Reserve"),
+                  icon: const Icon(Icons.car_rental),
+                  selectedColor: Colors.blueAccent),
+              SalomonBottomBarItem(
+                  title: const Text("Registion"),
+                  icon: const Icon(Icons.pageview)),
+              SalomonBottomBarItem(
+                  title: const Text("Profile"),
+                  icon: const Icon(Icons.person),
+                  selectedColor: Colors.red),
+            ]),
+      ),
     );
   }
 }

@@ -28,7 +28,9 @@ class _MyCarRegistion extends State<CarRegistion> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        backgroundColor: isDark ? Colors.black26 : tPrimaryColor,
+        backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
+        elevation: 3.0,
+        shadowColor: isDark ? Colors.black54 : Colors.black12,
         title: Text(tCarRegistration,
             style: Theme.of(context).textTheme.headlineMedium),
         automaticallyImplyLeading: false,
@@ -64,19 +66,23 @@ class PortraitContent extends StatefulWidget {
 }
 
 class _ProtraitState extends State<PortraitContent> {
+  late final TextEditingController inputcontroller;
+
   @override
   void initState() {
-    // TODO: implement initState
-    setState(() {
-      carRegisters = SharedPreference.getToken() ?? [];
-      // carRegisters[index] = carRegisters[index];
-    });
     super.initState();
+    carRegisters = SharedPreference.getToken() ?? [];
+    inputcontroller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    inputcontroller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final inputcontroller = TextEditingController();
     return Column(
       children: [
         SingleChildScrollView(
@@ -93,7 +99,8 @@ class _ProtraitState extends State<PortraitContent> {
                   maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   controller: inputcontroller,
                   decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.car_crash),
+                      prefixIcon: const Icon(Icons.car_crash, color: tTomatoColor),
+                      prefixIconColor: tTomatoColor,
                       suffixIcon: TextButton(
                         onPressed: () async {
                           if (inputcontroller.value.text == '') {
@@ -114,9 +121,24 @@ class _ProtraitState extends State<PortraitContent> {
                             await SharedPreference.SetCarRegister(carRegisters);
                           }
                         },
-                        child: const Text("ADD"),
+                        child: const Text(
+                          "ADD",
+                          style: TextStyle(
+                            color: tTomatoColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      label: const Text(tCarRegistration),
+                      labelText: tCarRegistration,
+                      labelStyle: const TextStyle(color: tTomatoColor),
+                      floatingLabelStyle: const TextStyle(color: tTomatoColor),
+                      counterStyle: const TextStyle(color: tTomatoColor),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: tTomatoColor, width: 1.5),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: tTomatoColor, width: 2.0),
+                      ),
                       border: const OutlineInputBorder()),
                 ),
                 // const SizedBox(
@@ -236,9 +258,22 @@ class LanscapeContent extends StatefulWidget {
 }
 
 class _LanscapeContentState extends State<LanscapeContent> {
+  late final TextEditingController inputcontroller;
+
+  @override
+  void initState() {
+    super.initState();
+    inputcontroller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    inputcontroller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final inputcontroller = TextEditingController();
     return Row(
       children: [
         Flexible(
@@ -257,7 +292,8 @@ class _LanscapeContentState extends State<LanscapeContent> {
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     controller: inputcontroller,
                     decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.car_crash),
+                        prefixIcon: const Icon(Icons.car_crash, color: tTomatoColor),
+                        prefixIconColor: tTomatoColor,
                         suffixIcon: TextButton(
                           onPressed: () {
                             if (inputcontroller.value.text == '') {
@@ -275,9 +311,24 @@ class _LanscapeContentState extends State<LanscapeContent> {
                               carRegisters.add(inputcontroller.value.text);
                             }
                           },
-                          child: const Text("ADD"),
+                          child: const Text(
+                            "ADD",
+                            style: TextStyle(
+                              color: tTomatoColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                        label: const Text(tCarRegistration),
+                        labelText: tCarRegistration,
+                        labelStyle: const TextStyle(color: tTomatoColor),
+                        floatingLabelStyle: const TextStyle(color: tTomatoColor),
+                        counterStyle: const TextStyle(color: tTomatoColor),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: tTomatoColor, width: 1.5),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: tTomatoColor, width: 2.0),
+                        ),
                         border: const OutlineInputBorder()),
                   ),
                   // const SizedBox(

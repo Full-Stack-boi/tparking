@@ -27,7 +27,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final controller = Get.put(ProfileController());
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: isDark ? Colors.black26 : tPrimaryColor,
+        backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
+        elevation: 3.0,
+        shadowColor: isDark ? Colors.black54 : Colors.black12,
         title:
             Text(tProfile, style: Theme.of(context).textTheme.headlineMedium),
         // actions: [IconButton(onPressed: () {}, icon: Icon(isDark ? LineAwesomeIcons.sun : LineAwesomeIcons.moon))],

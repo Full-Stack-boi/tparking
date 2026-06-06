@@ -16,7 +16,9 @@ class Reserve extends StatelessWidget {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: isDark ? Colors.black26 : tPrimaryColor,
+            backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
+            elevation: 3.0,
+            shadowColor: isDark ? Colors.black54 : Colors.black12,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

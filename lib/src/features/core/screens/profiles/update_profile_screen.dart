@@ -24,16 +24,69 @@ class UpdateProfileScreen extends StatefulWidget {
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   Uint8List? _image;
+  late final Future _userDataFuture;
+  late final ProfileController controller;
+
+  late final TextEditingController fullName;
+  late final TextEditingController email;
+  late final TextEditingController password;
+  late final TextEditingController id;
+  late final TextEditingController phoneNo;
+  late final TextEditingController roles;
+
+  bool _controllersInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(ProfileController());
+    _userDataFuture = controller.getUserData();
+
+    fullName = TextEditingController();
+    email = TextEditingController();
+    password = TextEditingController();
+    id = TextEditingController();
+    phoneNo = TextEditingController();
+    roles = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    fullName.dispose();
+    email.dispose();
+    password.dispose();
+    id.dispose();
+    phoneNo.dispose();
+    roles.dispose();
+    super.dispose();
+  }
+
+  void saveprofile() async {
+    saveData(id.text, file: _image);
+  }
+
+  void selectImage() async {
+    final Uint8List? img = await picImage(ImageSource.gallery);
+
+    if (img != null) {
+      setState(() {
+        _image = img;
+        saveprofile();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProfileController());
-
+    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Get.back(),
             icon: const Icon(LineAwesomeIcons.angle_left)),
+        backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
+        elevation: 3.0,
+        shadowColor: isDark ? Colors.black54 : Colors.black12,
         title: Text(tEditProfile,
             style: Theme.of(context).textTheme.headlineMedium),
       ),
@@ -41,34 +94,20 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         child: Container(
           padding: const EdgeInsets.all(tDefaultSize),
           child: FutureBuilder(
-              future: controller.getUserData(),
+              future: _userDataFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     UserModel user = snapshot.data as UserModel;
 
-                    void saveprofile() async {
-                      saveData(user.id, file: _image);
-                    }
-
-                    final fullName = TextEditingController(text: user.fullName);
-                    final email = TextEditingController(text: user.email);
-                    final password = TextEditingController(text: user.password);
-                    final id = TextEditingController(text: user.id);
-                    // final phoneNo = TextEditingController(text:user.phoneNo);
-                    final phoneNo = TextEditingController(text: user.phoneNo);
-                    final roles = TextEditingController(text: user.roles);
-                    // final imgaeLink = TextEditingController(text: user.imgaeLink);
-
-                    void selectImage() async {
-                      final Uint8List? img = await picImage(ImageSource.gallery);
-
-                      if (img != null) {
-                        setState(() {
-                          _image = img;
-                          saveprofile();
-                        });
-                      }
+                    if (!_controllersInitialized) {
+                      fullName.text = user.fullName;
+                      email.text = user.email;
+                      password.text = user.password;
+                      id.text = user.id ?? '';
+                      phoneNo.text = user.phoneNo;
+                      roles.text = user.roles;
+                      _controllersInitialized = true;
                     }
 
                     return Column(

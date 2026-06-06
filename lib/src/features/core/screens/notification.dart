@@ -11,9 +11,22 @@ class TPNotification extends StatefulWidget {
 }
 
 class _MyTPNotification extends State<TPNotification> {
+  late final TextEditingController inputcontroller;
+
+  @override
+  void initState() {
+    super.initState();
+    inputcontroller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    inputcontroller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final inputcontroller = TextEditingController();
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(

@@ -195,12 +195,12 @@ class ParkingSlot extends StatelessWidget {
                 child: Center(
                   child: InkWell(
                     onTap: () {
-                      if (controller.isParked==true) {
+                      if (controller.isParked.value==true) {
                         Get.showSnackbar(const GetSnackBar(title: tAlert, message: "Please Check-Out before Booking",duration: Duration(seconds: 2),));
                         
                       }
                       else{
-                        if (controller.isBooked==true) {
+                        if (controller.isBooked.value==true) {
                           Get.showSnackbar(const GetSnackBar(title: tAlert, message: "Please Wait Before Booking new one",duration: Duration(seconds: 2),));
                         } else {
                           Get.to(BookingPage(
@@ -217,7 +217,14 @@ class ParkingSlot extends StatelessWidget {
                           const EdgeInsets.symmetric(vertical: 7, horizontal: 30),
                       decoration: BoxDecoration(
                         color: tPrimaryColor,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 3,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: const Text(
                         "BOOK",
