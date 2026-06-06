@@ -1,77 +1,91 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 import 'package:tparking/src/features/core/screens/dashboard/dashboard.dart';
-//import '../config/colors.dart';
 import '../models/car_model.dart';
 import 'notification_local.dart';
 
 class ParkingController extends GetxController {
-  final fb = FirebaseDatabase.instance;
+  final _supabase = Supabase.instance.client;
   var parkingHours = 10.0.obs;
-  var selectedBuilding = "A Building".obs;
-  TextEditingController name = TextEditingController();
-  var slot1Time = "".obs;
-  var slot2Time = "".obs;
-  var slot3Time = "".obs;
-  var slot4Time = "".obs;
-  var slot5Time = "".obs;
-  var slot6Time = "".obs;
-  var slot7Time = "".obs;
-  var slot8Time = "".obs;
-  var slot1KEY = "-NRdY57houxuL83j7cok";
-  var slot2KEY = "-NRdYRojJXhw3_aixhnM";
-  var slot3KEY = "-NRdYTO7yp_MbMxjhic3";
-  var slot4KEY = "-NRdYWXOcd8oWymDLroj";
-  var slot5KEY = "-NRh9RiMNakdmIi6fZUv";
-  var slot6KEY = "-NRh9UdC92OokxV__NlW";
-  var slot7KEY = "-NRhCKffU8n0q23MErf5";
-  var slot8KEY = "-NRhCR1Szb2a59nUtcfs";
-  var slot1 = CarModel().obs;
-  var slot2 = CarModel().obs;
-  var slot3 = CarModel().obs;
-  var slot4 = CarModel().obs;
-  var slot5 = CarModel().obs;
-  var slot6 = CarModel().obs;
-  var slot7 = CarModel().obs;
-  var slot8 = CarModel().obs;
+  var selectedBuilding = "A".obs;
+  TextEditingController carRegistrationController = TextEditingController();
+
+  // Dynamic list of parking slots loaded from Database
+  var parkingSlots = <CarModel>[].obs;
+
+  // Get filtered parking slots based on the selected building (e.g. "A", "B", "C")
+  List<CarModel> get filteredParkingSlots {
+    return parkingSlots.where((slot) => slot.building == selectedBuilding.value).toList();
+  }
+
+  // Get filtered parking slots grouped by floor
+  Map<String, List<CarModel>> get groupedFilteredParkingSlots {
+    final Map<String, List<CarModel>> groups = {};
+    
+    // Sort slots by name to ensure consistent UI order
+    final sortedSlots = List<CarModel>.from(parkingSlots);
+    sortedSlots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
+
+    for (var slot in sortedSlots) {
+      final floorName = slot.floor ?? 'Floor 1';
+      groups.putIfAbsent(floorName, () => []).add(slot);
+    }
+
+    // Sort map keys to ensure Floor 1, Floor 2, Floor 3 sequence
+    final sortedKeys = groups.keys.toList()..sort();
+    final Map<String, List<CarModel>> sortedGroups = {};
+    for (var key in sortedKeys) {
+      sortedGroups[key] = groups[key]!;
+    }
+    return sortedGroups;
+  }
+
   final isBooked = false.obs;
   late String slotIdPraked = '';
   late String checkslotId = '';
   final isParked = false.obs;
 
-  final List<StreamSubscription> _subscriptions = [];
+  StreamSubscription? _streamSubscription;
+
+  // Helper to dynamically get table name for currently selected building
+  String get currentTableName {
+    return 'parking_slots_${selectedBuilding.value.toLowerCase()}';
+  }
 
   @override
   void onInit() {
     super.onInit();
     isParked.value = SharedPreference.getID() != null;
-    getData();
+    
+    // Subscribe to slots initially
+    subscribeToSlots();
+
+    // Listen to building changes and re-subscribe
+    ever(selectedBuilding, (_) {
+      subscribeToSlots();
+    });
   }
 
   @override
   void onClose() {
-    for (var sub in _subscriptions) {
-      sub.cancel();
-    }
-    name.dispose();
+    _streamSubscription?.cancel();
     super.onClose();
   }
 
   void updateData(slotId) async {
-    await fb.ref().child(slotId).update(
+    await _supabase.from(currentTableName).update(
       {
-        "name": name.text,
-        "parkingHours": parkingHours.toString(),
-        //    "paymentDone": true,
+        "car_registration": carRegistrationController.text,
+        "parking_hours": parkingHours.toString(),
         "booked": true,
       },
-    );
+    ).eq('id', slotId);
+
     slotIdPraked = slotId;
     isBooked.value = true;
     if (kDebugMode) {
@@ -114,139 +128,110 @@ class ParkingController extends GetxController {
           ],
         ));
 
-    if (slotId == slot1KEY) {
-      startSlotTimer(slot1KEY, slot1);
-    } else if (slotId == slot2KEY) {
-      startSlotTimer(slot2KEY, slot2);
-    } else if (slotId == slot3KEY) {
-      startSlotTimer(slot3KEY, slot3);
-    } else if (slotId == slot4KEY) {
-      startSlotTimer(slot4KEY, slot4);
-    } else if (slotId == slot5KEY) {
-      startSlotTimer(slot5KEY, slot5);
-    } else if (slotId == slot6KEY) {
-      startSlotTimer(slot6KEY, slot6);
-    } else if (slotId == slot7KEY) {
-      startSlotTimer(slot7KEY, slot7);
-    } else {
-      startSlotTimer(slot8KEY, slot8);
-    }
+    startSlotTimer(slotId);
     slotIdPraked = slotId;
     checkslotId = slotIdPraked;
   }
 
   checkoutupdate(slotIdPraked) async {
-    await fb.ref().child(slotIdPraked).update(
+    await _supabase.from(currentTableName).update(
       {
         "isParked": true,
-        "parkingHours": 0.0.toString(),
+        "parking_hours": 0.0.toString(),
       },
-    );
+    ).eq('id', slotIdPraked);
     isParked.value = true;
   }
 
   parkUpdate(checkslotId) async {
-    await fb.ref().child(checkslotId).update(
-      {"isParked": false, "booked": false, "name": ""},
-    );
+    await _supabase.from(currentTableName).update(
+      {"isParked": false, "booked": false, "car_registration": ""},
+    ).eq('id', checkslotId);
     isParked.value = false;
   }
 
-  void getData() {
-    if (_subscriptions.isNotEmpty) return;
+  void subscribeToSlots() async {
+    _streamSubscription?.cancel();
+    
+    final tableName = currentTableName;
+    print("Supabase Realtime: Subscribing to $tableName stream...");
+    
+    // 1. Fetch initial data immediately using standard select()
+    try {
+      final List<dynamic> response = await _supabase.from(tableName).select();
+      final List<CarModel> slots = response.map((row) => CarModel.fromJson(row)).toList();
+      slots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
+      parkingSlots.value = slots;
+      print("Supabase Select: Successfully loaded ${slots.length} slots initially.");
+    } catch (e) {
+      print("Supabase Select: Error fetching initial slots: $e");
+    }
 
-    _subscriptions.add(fb.ref().child(slot1KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot1.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot2KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot2.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot3KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot3.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot4KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot4.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot5KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot5.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot6KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot6.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot7KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot7.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
-    _subscriptions.add(fb.ref().child(slot8KEY).onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      slot8.value = CarModel.fromJson(
-        json.decode(
-          json.encode(dataSnapshot.value),
-        ),
-      );
-    }));
+    // 2. Stream for realtime updates
+    _streamSubscription = _supabase
+        .from(tableName)
+        .stream(primaryKey: ['id'])
+        .listen((List<Map<String, dynamic>> data) {
+      print("Supabase Realtime: Received ${data.length} slots from $tableName.");
+      try {
+        final List<CarModel> slots = data.map((row) => CarModel.fromJson(row)).toList();
+        slots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
+        parkingSlots.value = slots;
+        print("Supabase Realtime: Successfully parsed and sorted ${slots.length} slots.");
+      } catch (e, stack) {
+        print("Supabase Realtime: Error parsing slots data: $e");
+        print(stack);
+      }
+    }, onError: (error) {
+      print("Supabase Realtime: Stream encountered an error: $error");
+    });
   }
 
-  void addCar(CarModel car) {
-    fb.ref().push().set(car.toJson());
+  void addCar(CarModel car) async {
+    await _supabase.from(currentTableName).insert(car.toJson());
   }
 
-  void startSlotTimer(String slotKey, Rx<CarModel> slotObs) async {
-    double time = double.parse(slotObs.value.parkingHours.toString());
+  void startSlotTimer(String slotKey) async {
+    final slot = parkingSlots.firstWhereOrNull((s) => s.id == slotKey);
+    if (slot == null) return;
+    
+    double time = double.tryParse(slot.parkingHours?.toString() ?? '0') ?? 0;
+    final tableName = currentTableName;
 
-    while (time != 0) {
+    while (time > 0) {
       await Future.delayed(const Duration(seconds: 1)); // for testing
-      //await Future.delayed(Duration(minutes: 1)); ---> use for publicshed
       time--;
-      await fb.ref().child(slotKey).update(
+      await _supabase.from(tableName).update(
         {
-          "parkingHours": time.toString(),
+          "parking_hours": time.toString(),
         },
-      );
+      ).eq('id', slotKey);
     }
 
     if (isParked.value == false) {
-      await fb.ref().child(slotKey).update(
-        {"booked": false, "isParked": false, "name": ""},
-      );
-      NotificationLocal().scheduleNotification(
+      await _supabase.from(tableName).update(
+        {"booked": false, "isParked": false, "car_registration": ""},
+      ).eq('id', slotKey);
+      NotificationLocal().showNotification(
           title: 'Alert', body: 'Your slot has been cancel');
     }
 
     isBooked.value = false;
+  }
+
+  // Resets slots across all buildings at night (A, B, C)
+  Future<void> resetAllSlotsAtNight() async {
+    final tables = ['parking_slots_a', 'parking_slots_b', 'parking_slots_c'];
+    for (var table in tables) {
+      try {
+        await _supabase.from(table).update({
+          "isParked": false,
+          "booked": false,
+          "car_registration": ""
+        }).not('id', 'is', null);
+      } catch (e) {
+        print("Error resetting $table: $e");
+      }
+    }
   }
 }

@@ -15,15 +15,15 @@ class BuildingSelector extends StatelessWidget {
         focusColor: Colors.white,
         items: const [
           DropdownMenuItem(
-            value: "A Building",
+            value: "A",
             child: Text("A Building"),
           ),
           DropdownMenuItem(
-            value: "B Building",
+            value: "B",
             child: Text("B Building"),
           ),
           DropdownMenuItem(
-            value: "C Building",
+            value: "C",
             child: Text("C Building"),
           )
         ],
@@ -33,7 +33,7 @@ class BuildingSelector extends StatelessWidget {
         },
         hint: Obx(
           () => Text(
-            parkingController.selectedBuilding.value,
+            "${parkingController.selectedBuilding.value} Building",
             style: const TextStyle(
               fontSize: 15,
             ),

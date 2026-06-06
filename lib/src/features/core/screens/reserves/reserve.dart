@@ -69,136 +69,76 @@ class Reserve extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            isBooked: parkingController.slot1.value.booked,
-                            isParked: parkingController.slot1.value.isParked,
-                            slotName: "A-1",
-                            slotId: parkingController.slot1KEY,
-                            time: parkingController.slot1.value.parkingHours
-                                .toString(),
+                    const SizedBox(height: 10),
+                    ...parkingController.groupedFilteredParkingSlots.entries.map((entry) {
+                      final floorName = entry.key;
+                      final floorSlots = entry.value;
+
+                      return Theme(
+                        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          title: Text(
+                            floorName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        )),
-                        const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child:
-                              VerticalDivider(color: Colors.red, thickness: 2),
+                          initiallyExpanded: true,
+                          childrenPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+                          children: [
+                            ...List.generate(
+                              (floorSlots.length / 2).ceil(),
+                              (index) {
+                                final leftIndex = index * 2;
+                                final rightIndex = leftIndex + 1;
+
+                                final leftSlot = floorSlots[leftIndex];
+                                final rightSlot = rightIndex < floorSlots.length
+                                    ? floorSlots[rightIndex]
+                                    : null;
+
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ParkingSlot(
+                                            isBooked: leftSlot.booked ?? false,
+                                            isParked: leftSlot.isParked ?? false,
+                                            slotName: leftSlot.slotName ?? "",
+                                            slotId: leftSlot.id ?? "",
+                                            time: leftSlot.parkingHours?.toString() ?? "0.0",
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 60,
+                                          height: 60,
+                                          child: VerticalDivider(
+                                              color: Colors.red, thickness: 2),
+                                        ),
+                                        Expanded(
+                                          child: rightSlot != null
+                                              ? ParkingSlot(
+                                                  isBooked: rightSlot.booked ?? false,
+                                                  isParked: rightSlot.isParked ?? false,
+                                                  slotName: rightSlot.slotName ?? "",
+                                                  slotId: rightSlot.id ?? "",
+                                                  time: rightSlot.parkingHours?.toString() ?? "0.0",
+                                                )
+                                              : const SizedBox.shrink(),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 20),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: ParkingSlot(
-                            isBooked: parkingController.slot2.value.booked,
-                            isParked: parkingController.slot2.value.isParked,
-                            slotName: "A-2",
-                            slotId: parkingController.slot2KEY,
-                            time: parkingController.slot2.value.parkingHours
-                                .toString(),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            slotId: parkingController.slot3KEY,
-                            isBooked: parkingController.slot3.value.booked,
-                            isParked: parkingController.slot3.value.isParked,
-                            time: parkingController.slot3.value.parkingHours
-                                .toString(),
-                            slotName: "A-3",
-                          ),
-                        )),
-                        const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child:
-                              VerticalDivider(color: Colors.red, thickness: 2),
-                        ),
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            slotId: parkingController.slot4KEY,
-                            isBooked: parkingController.slot4.value.booked,
-                            isParked: parkingController.slot4.value.isParked,
-                            slotName: "A-4",
-                            time: parkingController.slot4.value.parkingHours
-                                .toString(),
-                          ),
-                        ))
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            slotId: parkingController.slot5KEY,
-                            isBooked: parkingController.slot5.value.booked,
-                            isParked: parkingController.slot5.value.isParked,
-                            time: parkingController.slot5.value.parkingHours
-                                .toString(),
-                            slotName: "A-5",
-                          ),
-                        )),
-                        const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child:
-                              VerticalDivider(color: Colors.red, thickness: 2),
-                        ),
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            slotId: parkingController.slot6KEY,
-                            isBooked: parkingController.slot6.value.booked,
-                            isParked: parkingController.slot6.value.isParked,
-                            slotName: "A-6",
-                            time: parkingController.slot6.value.parkingHours
-                                .toString(),
-                          ),
-                        ))
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            slotId: parkingController.slot7KEY,
-                            isBooked: parkingController.slot7.value.booked,
-                            isParked: parkingController.slot7.value.isParked,
-                            slotName: "A-7",
-                            time: parkingController.slot7.value.parkingHours
-                                .toString(),
-                          ),
-                        )),
-                        const SizedBox(
-                          width: 60,
-                          height: 60,
-                          child:
-                              VerticalDivider(color: Colors.red, thickness: 2),
-                        ),
-                        Expanded(
-                            child: Obx(
-                          () => ParkingSlot(
-                            slotId: parkingController.slot8KEY,
-                            isBooked: parkingController.slot8.value.booked,
-                            isParked: parkingController.slot8.value.isParked,
-                            slotName: "A-8",
-                            time: parkingController.slot8.value.parkingHours
-                                .toString(),
-                          ),
-                        ))
-                      ],
-                    ),
+                      );
+                    }).toList(),
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

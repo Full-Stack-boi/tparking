@@ -1,5 +1,9 @@
 class CarModel {
-  String? name;
+  String? id;
+  String? building;
+  String? floor;
+  String? carRegistration;
+  String? slotName;
   bool? isParked;
   bool? paymentDone;
   bool? booked;
@@ -8,32 +12,45 @@ class CarModel {
   String? parkingHours;
 
   CarModel(
-      {this.name,
+      {this.id,
+      this.building,
+      this.floor,
+      this.carRegistration,
+      this.slotName,
       this.isParked,
       this.paymentDone,
       this.booked,
       this.parkedFrom,
       this.parkedTo,
       this.parkingHours});
+
   CarModel.fromJson(Map<String, dynamic> json) {
-    name = json["name"];
+    id = json["id"]?.toString();
+    building = json["building"];
+    floor = json["floor"];
+    carRegistration = json["car_registration"];
+    slotName = json["slot_name"];
     isParked = json["isParked"];
-    paymentDone = json["paymentDone"];
+    paymentDone = json["payment_done"];
     booked = json["booked"];
-    parkedFrom = json["parkedFrom"];
-    parkedTo = json["parkedTo"];
-    parkingHours = json["parkingHours"];
+    parkedFrom = json["parked_from"];
+    parkedTo = json["parked_to"];
+    parkingHours = json["parking_hours"]?.toString();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data["name"] = name;
+    data["id"] = id;
+    data["building"] = building;
+    data["floor"] = floor;
+    data["car_registration"] = carRegistration;
+    data["slot_name"] = slotName;
     data["isParked"] = isParked;
-    data["paymentDone"] = paymentDone;
+    data["payment_done"] = paymentDone;
     data["booked"] = booked;
-    data["parkedFrom"] = parkedFrom;
-    data["parkedTo"] = parkedTo;
-    data["parkingHours"] = parkingHours;
+    data["parked_from"] = parkedFrom;
+    data["parked_to"] = parkedTo;
+    data["parking_hours"] = parkingHours;
     return data;
   }
 }

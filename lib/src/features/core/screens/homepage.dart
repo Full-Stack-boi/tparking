@@ -241,7 +241,7 @@ class _HomepageState extends State<Homepage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      parkingController.selectedBuilding.value,
+                      "${parkingController.selectedBuilding.value} Building",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -380,19 +380,8 @@ class _HomepageState extends State<Homepage> {
     final dashboardController = Get.find<DashboardController>();
     final nowTimes = DateTime.now();
 
-    void resetParked() {
-      parkingController.parkUpdate(parkingController.slot1KEY);
-      parkingController.parkUpdate(parkingController.slot2KEY);
-      parkingController.parkUpdate(parkingController.slot3KEY);
-      parkingController.parkUpdate(parkingController.slot4KEY);
-      parkingController.parkUpdate(parkingController.slot5KEY);
-      parkingController.parkUpdate(parkingController.slot6KEY);
-      parkingController.parkUpdate(parkingController.slot7KEY);
-      parkingController.parkUpdate(parkingController.slot8KEY);
-    }
-
     if (nowTimes.hour > 19 || nowTimes.hour < 5) {
-      resetParked();
+      parkingController.resetAllSlotsAtNight();
     }
 
     return Scaffold(

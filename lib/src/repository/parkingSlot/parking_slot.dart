@@ -1,7 +1,6 @@
 
 
 import 'package:another_dashed_container/another_dashed_container.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
@@ -11,7 +10,6 @@ import 'package:tparking/src/common_widgets/constants/text_string.dart';
 import '../../features/controllers/parking_controllers.dart';
 import '../../features/core/screens/orientation_widget.dart';
 import '../../features/core/screens/reserves/booking_page.dart';
-
 
 class ParkingSlot extends StatelessWidget {
   final bool? isParked;
@@ -31,13 +29,7 @@ class ParkingSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String snap = '';
-    final Detail = FirebaseDatabase.instance.ref().child(slotId).child('name');
-    Detail.onValue.listen((event) {
-      DataSnapshot dataSnapshot = event.snapshot;
-      snap = dataSnapshot.value.toString();
-    });
-     ParkingController controller = Get.put(ParkingController());
+    ParkingController controller = Get.put(ParkingController());
     return DashedContainer(
       dashColor: Colors.blue.shade300,
       dashedLength: 10.0,
@@ -55,9 +47,6 @@ class ParkingSlot extends StatelessWidget {
                 time == "0.0"
                     ? const SizedBox(width: 1)
                     :  Text(time),
-                    // Container(
-                    //     child: Text(time),
-                    //   ),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
@@ -76,13 +65,9 @@ class ParkingSlot extends StatelessWidget {
                   ),
                 ),
                 const Text("")
-                // Container(
-                //   child: const Text(""),
-                // )
               ],
             ),
             const SizedBox(height: 10),
-            //if (isParked == true)
             if (isBooked == true && isParked == true)
               Expanded(
                 child: GestureDetector(
@@ -98,7 +83,6 @@ class ParkingSlot extends StatelessWidget {
                         Column(
                           children: [
                             Container(
-                              // alignment: Alignment.center,
                               margin:  const EdgeInsets.only(top: 7.5),
                               height: 8,
                               width: Get.width/3,
@@ -106,25 +90,23 @@ class ParkingSlot extends StatelessWidget {
                                 color: Colors.black26,
                                 borderRadius: BorderRadius.all(Radius.circular(100))
                               ),
-                            
                             ),
                             const SizedBox(height: 5),
                             Column(
-                              
                               children:[
                                 Text('Parked By',style: Theme.of(context).textTheme.headlineLarge?.apply(color: Colors.black54)),
                                 const SizedBox(height: 5,),
-                                Text("Car License $snap",style: Theme.of(context).textTheme.headlineMedium?.apply(color: Colors.black),),
-                                // Lottie.asset('assets/animation/Parked_by.json',height: Get.height/2.5),
+                                Obx(() {
+                                  final s = controller.parkingSlots.firstWhereOrNull((item) => item.id == slotId);
+                                  return Text("Car License ${s?.carRegistration ?? ''}",style: Theme.of(context).textTheme.headlineMedium?.apply(color: Colors.black));
+                                }),
                                 Container(
                                   child:  Lottie.asset('assets/animation/Parked_by.json',height: Get.height/2.5),
                                 )
                               ]
-                              
                             ),
-                      
-                                          ],
-                                          ), lanscape: Column(
+                          ],
+                        ), lanscape: Column(
                           children: [
                             Container(
                               alignment: Alignment.center,
@@ -135,44 +117,30 @@ class ParkingSlot extends StatelessWidget {
                                 color: Colors.black26,
                                 borderRadius: BorderRadius.all(Radius.circular(100))
                               ),
-                            
                             ),
-                            // const SizedBox(width: 50),
                             Row(
-                              
                               children:[
                                 const SizedBox(width: 20,),
                                 Text('Parked By',style: Theme.of(context).textTheme.headlineLarge?.apply(color: Colors.black54)),
                                 const SizedBox(width: 25,),
-                                Text("Car License $snap",style: Theme.of(context).textTheme.headlineMedium?.apply(color: Colors.black),),
+                                Obx(() {
+                                  final s = controller.parkingSlots.firstWhereOrNull((item) => item.id == slotId);
+                                  return Text("Car License ${s?.carRegistration ?? ''}",style: Theme.of(context).textTheme.headlineMedium?.apply(color: Colors.black));
+                                }),
                                 SizedBox(
                                   width: Get.width/2.6,
                                   height: Get.height/2,
                                   child:  Lottie.asset('assets/animation/Parked_by.json'),
                                 )
                               ]
-                              
                             ),
-                      
-                                          ],
-                                          ),),
+                          ],
+                        ),),
                       )
-                      
                     );
                   },
                   child: Image.asset("assets/images/icons8-car-100.png"),
                 ),
-                // child: Material(
-                //   type: MaterialType.circle,
-                //   color: Colors.transparent,
-                //   child: InkWell(
-                //     onTap: () {
-                      
-                //     },
-                //     child: Image.asset("assets/images/icons8-car-100.png"),
-                //   ),
-                // ),
-                // child: Image.asset("assets/images/icons8-car-100.png"),
               )
             else if (isBooked == true)
               Expanded(
@@ -197,7 +165,6 @@ class ParkingSlot extends StatelessWidget {
                     onTap: () {
                       if (controller.isParked.value==true) {
                         Get.showSnackbar(const GetSnackBar(title: tAlert, message: "Please Check-Out before Booking",duration: Duration(seconds: 2),));
-                        
                       }
                       else{
                         if (controller.isBooked.value==true) {
@@ -209,7 +176,6 @@ class ParkingSlot extends StatelessWidget {
                       )
                      ,transition: Transition.circularReveal,duration: const Duration(milliseconds: 800));
                         }
-                          
                       }
                     },
                     child: Container(
