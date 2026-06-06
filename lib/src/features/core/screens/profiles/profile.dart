@@ -78,11 +78,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   borderRadius: BorderRadius.circular(100),
                                   color: tPrimaryColor),
                               child: IconButton(
-                                onPressed: () => Get.to(
-                                    () => const UpdateProfileScreen(),
-                                    transition: Transition.circularReveal,
-                                    duration:
-                                        const Duration(milliseconds: 500)),
+                                onPressed: () async {
+                                  await Get.to(
+                                      () => const UpdateProfileScreen(),
+                                      transition: Transition.circularReveal,
+                                      duration:
+                                          const Duration(milliseconds: 500));
+                                  setState(() {});
+                                },
                                 icon: const Icon(
                                   LineAwesomeIcons.alternate_pencil,
                                   color: Colors.black,
@@ -104,9 +107,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(
                         width: 200,
                         child: ElevatedButton(
-                          onPressed: () => Get.to(
-                              () => const UpdateProfileScreen(),
-                              transition: Transition.cupertino),
+                          onPressed: () async {
+                            await Get.to(
+                                () => const UpdateProfileScreen(),
+                                transition: Transition.cupertino);
+                            setState(() {});
+                          },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: tPrimaryColor,
                               side: BorderSide.none,

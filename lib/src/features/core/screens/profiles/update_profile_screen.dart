@@ -35,6 +35,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   late final TextEditingController roles;
 
   bool _controllersInitialized = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -61,18 +62,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     super.dispose();
   }
 
-  void saveprofile() async {
-    saveData(id.text, file: _image);
-  }
-
   void selectImage() async {
     final Uint8List? img = await picImage(ImageSource.gallery);
 
     if (img != null) {
-      setState(() {
-        _image = img;
-        saveprofile();
-      });
+      if (mounted) {
+        setState(() {
+          _image = img;
+        });
+      }
     }
   }
 
@@ -116,25 +114,29 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         Stack(
                           children: [
                             _image != null
-                                ?
-                                // CircleAvatar(
-                                //     child: const Image(image: AssetImage(tProfileImage))),
-                                // _image!= null ?
-                                SizedBox(
+                                ? SizedBox(
                                     width: 120,
                                     height: 120,
                                     child: CircleAvatar(
                                         backgroundColor: Colors.transparent,
                                         backgroundImage: MemoryImage(_image!)),
                                   )
-                                : const SizedBox(
-                                    width: 120,
-                                    height: 120,
-                                    child: CircleAvatar(
-                                        backgroundColor: Colors.transparent,
-                                        child: Image(
-                                            image: AssetImage(tProfileImage))),
-                                  ),
+                                : (user.imgaeLink != null && user.imgaeLink!.isNotEmpty && user.imgaeLink != 'null')
+                                    ? SizedBox(
+                                        width: 120,
+                                        height: 120,
+                                        child: CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            backgroundImage: NetworkImage(user.imgaeLink!)),
+                                      )
+                                    : const SizedBox(
+                                        width: 120,
+                                        height: 120,
+                                        child: CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            child: Image(
+                                                image: AssetImage(tProfileImage))),
+                                      ),
                             Positioned(
                               bottom: 0,
                               right: 0,
@@ -164,12 +166,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     label: Text(tFullName),
                                     prefixIcon: Icon(LineAwesomeIcons.user)),
                               ),
-                              // const SizedBox(height: tFormHeight - 20),
-                              // TextFormField(
-                              //   controller: email,
-                              //   decoration: const InputDecoration(
-                              //       label: Text(tEmail), prefixIcon: Icon(LineAwesomeIcons.envelope_1)),
-                              // ),
                               const SizedBox(height: tFormHeight - 20),
                               TextFormField(
                                 controller: phoneNo,
@@ -177,50 +173,64 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     label: Text(tPhoneNo),
                                     prefixIcon: Icon(LineAwesomeIcons.phone)),
                               ),
-                              // const SizedBox(height: tFormHeight - 20),
-                              // TextFormField(
-                              //   obscureText: true,
-                              //   controller: password,
-                              //   decoration: InputDecoration(
-                              //     label: const Text(tPassword),
-                              //     prefixIcon: const Icon(Icons.fingerprint),
-                              //     suffixIcon:
-                              //     IconButton(icon: const Icon(LineAwesomeIcons.eye_slash), onPressed: () {}),
-                              //   ),
-                              // ),
                               const SizedBox(height: tFormHeight),
 
                               // -- Form Submit Button
                               SizedBox(
                                 width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    // ignore: non_constant_identifier_names
-                                    final UserData = UserModel(
-                                        id: id.text,
-                                        fullName: fullName.text.trim(),
-                                        email: email.text.trim(),
-                                        phoneNo: phoneNo.text.trim(),
-                                        // phoneNo:    List.filled(1, phoneNo.text.trim(),growable: true),
-                                        password: password.text.trim(),
-                                        roles: roles.text.trim(),
-                                        imgaeLink: user.imgaeLink.toString());
-                                    _image == null
-                                        ? Get.showSnackbar(const GetSnackBar(
-                                            message:
-                                                "Your profile didn't change . ",
-                                            duration: Duration(seconds: 2),
-                                          ))
-                                        : saveprofile();
-                                    await controller.updateRecord(UserData);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: tPrimaryColor,
-                                      side: BorderSide.none,
-                                      shape: const StadiumBorder()),
-                                  child: const Text(tEditProfile,
-                                      style: TextStyle(color: tDarkColor)),
-                                ),
+                                child: _isSaving
+                                    ? const Center(child: CircularProgressIndicator())
+                                    : ElevatedButton(
+                                        onPressed: () async {
+                                          if (mounted) {
+                                            setState(() {
+                                              _isSaving = true;
+                                            });
+                                          }
+                                          try {
+                                            String? finalImageUrl = user.imgaeLink;
+                                            if (_image != null) {
+                                              finalImageUrl = await uploadimgtostorage(
+                                                  'ProfileImage', _image!, id.text);
+                                            }
+                                            final UserData = UserModel(
+                                                id: id.text,
+                                                fullName: fullName.text.trim(),
+                                                email: email.text.trim(),
+                                                phoneNo: phoneNo.text.trim(),
+                                                password: password.text.trim(),
+                                                roles: roles.text.trim(),
+                                                imgaeLink: finalImageUrl,
+                                                carRegistrations: user.carRegistrations);
+
+                                            await controller.updateRecord(UserData);
+                                            Get.showSnackbar(const GetSnackBar(
+                                              title: "Success",
+                                              message: "Profile updated successfully.",
+                                              duration: Duration(seconds: 2),
+                                            ));
+                                            Get.back();
+                                          } catch (e) {
+                                            Get.showSnackbar(GetSnackBar(
+                                              title: tError,
+                                              message: e.toString(),
+                                              duration: const Duration(seconds: 2),
+                                            ));
+                                          } finally {
+                                            if (mounted) {
+                                              setState(() {
+                                                _isSaving = false;
+                                              });
+                                            }
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: tPrimaryColor,
+                                            side: BorderSide.none,
+                                            shape: const StadiumBorder()),
+                                        child: const Text(tEditProfile,
+                                            style: TextStyle(color: tDarkColor)),
+                                      ),
                               ),
                               const SizedBox(height: tFormHeight),
 
@@ -228,17 +238,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  // const Text.rich(
-                                  //   TextSpan(
-                                  //     text: tJoined,
-                                  //     style: TextStyle(fontSize: 12),
-                                  //     children: [
-                                  //       TextSpan(
-                                  //           text: tJoinedAt,
-                                  //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12))
-                                  //     ],
-                                  //   ),
-                                  // ),
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor:
@@ -251,7 +250,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     onPressed: () {
                                       Get.defaultDialog(
                                         title: "DELETE USER",
-                                        // titleStyle: const TextStyle(fontSize: 20),
                                         content: const Padding(
                                           padding: EdgeInsets.all(8),
                                           child: Text(
@@ -272,7 +270,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                           },
                                           child: const Text("YES"),
                                         ),
-
                                         cancel: OutlinedButton(
                                             onPressed: () => Get.back(),
                                             child: const Text("No")),
