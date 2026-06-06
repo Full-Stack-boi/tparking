@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 Project/
+
+# Agent-specific files
+.agents/
+skills-lock.json

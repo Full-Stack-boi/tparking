@@ -1,18 +1,17 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 //import 'package:get/get_navigation/get_navigation.dart';
-import 'package:tparking/firebase_options.dart';
 import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 //import 'package:tparking/src/features/authentication/screens/splash_screen/welcome/welcome_screen.dart';
 //import 'package:tparking/src/features/authentication/screens/splash_screen/splash_screen.dart';
 import 'package:tparking/src/repository/authentication_repository/authentication_repository.dart';
 import 'package:tparking/src/utils/theme/theme.dart';
 
-import 'src/features/controllers/notification_api.dart';
 import 'src/features/controllers/notification_local.dart';
 //import 'src/features/core/screens/car_registion.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -20,10 +19,19 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   NotificationLocal().initNotification();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
-      .then((value) => Get.put(AuthenticationRepository()));
-  FirebaseApi().initNotifications();
+  await Supabase.initialize(
+    url: 'https://nxiatztvwvbtlhwtyxoj.supabase.co',
+    anonKey: 'sb_publishable_4GKHQRbDWOrl3tQ68HC9dQ_N4qKQJq_',
+  );
+  Get.put(AuthenticationRepository());
+
+  // FirebaseApi().initNotifications();
   tz.initializeTimeZones();
+  try {
+    tz.setLocalLocation(tz.getLocation('Asia/Bangkok'));
+  } catch (e) {
+    debugPrint("Timezone initialization warning: $e");
+  }
   await SharedPreference.init();
   runApp(const MyApp());
 }
