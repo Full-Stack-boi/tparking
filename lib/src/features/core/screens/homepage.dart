@@ -5,6 +5,7 @@ import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:location/location.dart';
+import 'package:lottie/lottie.dart';
 
 import 'package:tparking/src/common_widgets/constants/colors.dart';
 import 'package:tparking/src/common_widgets/constants/image_stritngs.dart';
@@ -162,6 +163,18 @@ class _HomepageState extends State<Homepage> {
 
   Widget _buildActiveBookingCard(
       BuildContext context, bool isDark, ParkingController parkingController) {
+    final isUserParked = parkingController.isParked.value == true;
+    final slot = parkingController.activeReservedSlot.value;
+    final slotName = slot?.slotName ?? parkingController.slotIdPraked.split('-').last.substring(
+                          0,
+                          min(
+                              5,
+                              parkingController.slotIdPraked
+                                  .split('-')
+                                  .last
+                                  .length));
+    final buildingName = slot?.building ?? parkingController.selectedBuilding.value;
+
     return Card(
       elevation: 2,
       shadowColor: Colors.black12,
@@ -181,24 +194,39 @@ class _HomepageState extends State<Homepage> {
         ),
         child: Column(
           children: [
-            CircularCountDownTimer(
-              width: 130,
-              height: 130,
-              duration: parkingController.parkingHours.value.toInt(),
-              fillColor: isDark ? tPrimaryColor : Colors.blueAccent,
-              ringColor: isDark ? Colors.grey[800]! : Colors.blue[50]!,
-              autoStart: true,
-              textStyle: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : tDarkColor,
+            if (isUserParked)
+              Lottie.asset(
+                'assets/animation/Parked_by.json',
+                width: 130,
+                height: 130,
+              )
+            else
+              CircularCountDownTimer(
+                width: 130,
+                height: 130,
+                duration: parkingController.getTotalReservationSeconds(),
+                initialDuration: parkingController.getInitialElapsedSeconds(),
+                fillColor: isDark ? tPrimaryColor : Colors.blueAccent,
+                ringColor: isDark ? Colors.grey[800]! : Colors.blue[50]!,
+                autoStart: true,
+                isReverse: true,
+                isReverseAnimation: true,
+                textStyle: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : tDarkColor,
+                ),
+                onComplete: () {
+                  parkingController.handleReservationExpired();
+                },
               ),
-            ),
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.12),
+                color: isUserParked 
+                    ? Colors.blue.withOpacity(0.12)
+                    : Colors.green.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
@@ -207,16 +235,16 @@ class _HomepageState extends State<Homepage> {
                   Container(
                     width: 8,
                     height: 8,
-                    decoration: const BoxDecoration(
-                      color: Colors.green,
+                    decoration: BoxDecoration(
+                      color: isUserParked ? Colors.blue : Colors.green,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  const Text(
-                    'Active Reservation',
+                  Text(
+                    isUserParked ? 'Currently Parked' : 'Active Reservation',
                     style: TextStyle(
-                      color: Colors.green,
+                      color: isUserParked ? Colors.blue : Colors.green,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),
@@ -241,7 +269,7 @@ class _HomepageState extends State<Homepage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "${parkingController.selectedBuilding.value} Building",
+                      "$buildingName Building",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -260,14 +288,26 @@ class _HomepageState extends State<Homepage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      parkingController.slotIdPraked.split('-').last.substring(
-                          0,
-                          min(
-                              5,
-                              parkingController.slotIdPraked
-                                  .split('-')
-                                  .last
-                                  .length)),
+                      slotName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text(
+                      "Vehicle Plate",
+                      style: TextStyle(
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      slot?.carRegistration ?? "-",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
