@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:tparking/src/common_widgets/constants/colors.dart';
-import 'package:tparking/src/features/core/controllers/car_register_list.dart';
-
 import '../../../../common_widgets/constants/text_string.dart';
 import '../../../authentication/models/user_model.dart';
 import '../../../controllers/parking_controllers.dart';

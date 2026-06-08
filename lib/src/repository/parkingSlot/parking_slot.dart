@@ -17,6 +17,7 @@ class ParkingSlot extends StatelessWidget {
   final String? slotName;
   final String slotId;
   final String time;
+  final String? parkedTo;
 
   const ParkingSlot({
     super.key,
@@ -25,11 +26,28 @@ class ParkingSlot extends StatelessWidget {
     this.slotName,
     this.slotId = "0.0",
     required this.time,
+    this.parkedTo,
   });
+
+  String getRemainingTimeText() {
+    if (isBooked != true || isParked == true) return '';
+    if (parkedTo == null || parkedTo!.isEmpty) {
+      return (time == "0.0" || time == "0") ? "" : time;
+    }
+    try {
+      final parkedToDateTime = DateTime.parse(parkedTo!).toUtc();
+      final nowUtc = DateTime.now().toUtc();
+      final difference = parkedToDateTime.difference(nowUtc).inSeconds;
+      return difference > 0 ? difference.toString() : '0';
+    } catch (e) {
+      return time;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     ParkingController controller = Get.put(ParkingController());
+    final remainingTime = getRemainingTimeText();
     return DashedContainer(
       dashColor: Colors.blue.shade300,
       dashedLength: 10.0,
@@ -44,9 +62,9 @@ class ParkingSlot extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                time == "0.0"
-                    ? const SizedBox(width: 1)
-                    :  Text(time),
+                remainingTime.isNotEmpty
+                    ? Text(remainingTime)
+                    : const SizedBox(width: 1),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(vertical: 3, horizontal: 15),

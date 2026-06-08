@@ -109,6 +109,7 @@ class Reserve extends StatelessWidget {
                                             slotName: leftSlot.slotName ?? "",
                                             slotId: leftSlot.id ?? "",
                                             time: leftSlot.parkingHours?.toString() ?? "0.0",
+                                            parkedTo: leftSlot.parkedTo,
                                           ),
                                         ),
                                         const SizedBox(
@@ -125,6 +126,7 @@ class Reserve extends StatelessWidget {
                                                   slotName: rightSlot.slotName ?? "",
                                                   slotId: rightSlot.id ?? "",
                                                   time: rightSlot.parkingHours?.toString() ?? "0.0",
+                                                  parkedTo: rightSlot.parkedTo,
                                                 )
                                               : const SizedBox.shrink(),
                                         ),
