@@ -26,6 +26,11 @@ class ParkingController extends GetxController {
 
   // Get filtered parking slots grouped by floor
   Map<String, List<CarModel>> get groupedFilteredParkingSlots {
+    // Register Rx variables with GetX/Obx even when returning cached slots
+    final _ = parkingSlots.length + selectedBuilding.value.hashCode;
+
+    if (_cachedGroupedSlots != null) return _cachedGroupedSlots!;
+
     final Map<String, List<CarModel>> groups = {};
     
     // Sort slots by name to ensure consistent UI order
@@ -43,6 +48,7 @@ class ParkingController extends GetxController {
     for (var key in sortedKeys) {
       sortedGroups[key] = groups[key]!;
     }
+    _cachedGroupedSlots = sortedGroups;
     return sortedGroups;
   }
 
@@ -54,7 +60,9 @@ class ParkingController extends GetxController {
   final activeReservedSlot = Rxn<CarModel>();
   List<String> _userCars = [];
   Timer? _localTimer;
+  Timer? _debounceTimer;
   bool _hasSubscribed = false;
+  Map<String, List<CarModel>>? _cachedGroupedSlots;
 
   StreamSubscription? _streamSubscription;
 
@@ -67,28 +75,38 @@ class ParkingController extends GetxController {
   void onInit() async {
     super.onInit();
     isParked.value = SharedPreference.getID() != null;
-    
-    // 1. Load user's registered cars
-    await _loadUserCars();
 
-    // 2. Listen to building changes and re-subscribe
-    ever(selectedBuilding, (_) {
-      subscribeToSlots();
-    });
-
-    // 3. Find active reservation (may change selectedBuilding)
-    await findUserActiveReservation();
-
-    // 4. If we haven't subscribed yet (because selectedBuilding didn't change from 'A'), subscribe now
-    if (!_hasSubscribed) {
-      subscribeToSlots();
+    // Check nightly reset (between 19:00 PM and 5:00 AM)
+    final now = DateTime.now();
+    if (now.hour > 19 || now.hour < 5) {
+      resetAllSlotsAtNight();
     }
+    
+    // Delay non-critical initialization steps to allow app transition animation to run smoothly
+    Future.delayed(const Duration(milliseconds: 400), () async {
+      // 1. Load user's registered cars
+      await _loadUserCars();
+
+      // 2. Listen to building changes and re-subscribe
+      ever(selectedBuilding, (_) {
+        subscribeToSlots();
+      });
+
+      // 3. Find active reservation (may change selectedBuilding)
+      await findUserActiveReservation();
+
+      // 4. If we haven't subscribed yet (because selectedBuilding didn't change from 'A'), subscribe now
+      if (!_hasSubscribed) {
+        subscribeToSlots();
+      }
+    });
   }
 
   @override
   void onClose() {
     _streamSubscription?.cancel();
     _localTimer?.cancel();
+    _debounceTimer?.cancel();
     super.onClose();
   }
 
@@ -112,44 +130,48 @@ class ParkingController extends GetxController {
       final email = _supabase.auth.currentUser?.email;
       if (email == null) return;
       
-      final userRepo = Get.isRegistered<UserRepository>()
-          ? Get.find<UserRepository>()
-          : Get.put(UserRepository());
-      final user = await userRepo.getUserDetails(email);
-      _userCars = user.carRegistrations;
-      if (_userCars.isEmpty) return;
+      // If we haven't loaded user cars yet, load them now
+      if (_userCars.isEmpty) {
+        await _loadUserCars();
+      }
+      
+      final nonFilterCars = _userCars.where((car) => car.isNotEmpty).toList();
+      if (nonFilterCars.isEmpty) return;
 
       final tables = ['parking_slots_a', 'parking_slots_b', 'parking_slots_c'];
-      for (var table in tables) {
-        for (var car in _userCars) {
-          if (car.isEmpty) continue;
-          final response = await _supabase
-              .from(table)
-              .select()
-              .eq('car_registration', car)
-              .or('booked.eq.true,isParked.eq.true');
+      
+      // Query all tables in parallel to minimize latency on startup
+      final futures = tables.map((table) => _supabase
+          .from(table)
+          .select()
+          .inFilter('car_registration', nonFilterCars)
+          .or('booked.eq.true,isParked.eq.true')
+          .maybeSingle()); // maybeSingle returns null if no rows match, or a single row if matched
           
-          if (response.isNotEmpty) {
-            final Map<String, dynamic> row = response.first;
-            final slot = CarModel.fromJson(row);
-            final buildingLetter = table.split('_').last.toUpperCase(); // 'a' -> 'A'
-            
-            // Set active booking info
-            activeReservedSlot.value = slot;
-            slotIdPraked = slot.id ?? '';
-            checkslotId = slot.id ?? '';
-            isBooked.value = slot.booked == true;
-            isParked.value = slot.isParked == true;
-            
-            // Switch building (which triggers ever and re-subscribes)
-            selectedBuilding.value = buildingLetter;
-            
-            print("Found active reservation in building $buildingLetter, slot: ${slot.slotName}");
-            
-            // Start local countdown
-            startLocalCountdownTimer();
-            return;
-          }
+      final results = await Future.wait(futures);
+
+      for (int i = 0; i < tables.length; i++) {
+        final row = results[i];
+        if (row != null) {
+          final table = tables[i];
+          final slot = CarModel.fromJson(row);
+          final buildingLetter = table.split('_').last.toUpperCase(); // 'a' -> 'A'
+          
+          // Set active booking info
+          activeReservedSlot.value = slot;
+          slotIdPraked = slot.id ?? '';
+          checkslotId = slot.id ?? '';
+          isBooked.value = slot.booked == true;
+          isParked.value = slot.isParked == true;
+          
+          // Switch building (which triggers ever and re-subscribes)
+          selectedBuilding.value = buildingLetter;
+          
+          print("Found active reservation in building $buildingLetter, slot: ${slot.slotName}");
+          
+          // Start local countdown
+          startLocalCountdownTimer();
+          return;
         }
       }
     } catch (e) {
@@ -262,22 +284,26 @@ class ParkingController extends GetxController {
       print("Supabase Select: Error fetching initial slots: $e");
     }
 
-    // 2. Stream for realtime updates
+    // 2. Stream for realtime updates (debounced to prevent rapid rebuilds)
     _streamSubscription = _supabase
         .from(tableName)
         .stream(primaryKey: ['id'])
         .listen((List<Map<String, dynamic>> data) {
       print("Supabase Realtime: Received ${data.length} slots from $tableName.");
-      try {
-        final List<CarModel> slots = data.map((row) => CarModel.fromJson(row)).toList();
-        slots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
-        parkingSlots.value = slots;
-        print("Supabase Realtime: Successfully parsed and sorted ${slots.length} slots.");
-        updateActiveReservationState();
-      } catch (e, stack) {
-        print("Supabase Realtime: Error parsing slots data: $e");
-        print(stack);
-      }
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        try {
+          final List<CarModel> slots = data.map((row) => CarModel.fromJson(row)).toList();
+          slots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
+          _cachedGroupedSlots = null; // Invalidate cache
+          parkingSlots.value = slots;
+          print("Supabase Realtime: Successfully parsed and sorted ${slots.length} slots.");
+          updateActiveReservationState();
+        } catch (e, stack) {
+          print("Supabase Realtime: Error parsing slots data: $e");
+          print(stack);
+        }
+      });
     }, onError: (error) {
       print("Supabase Realtime: Stream encountered an error: $error");
     });
