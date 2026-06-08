@@ -10,7 +10,7 @@ class BuildingSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ParkingController parkingController = Get.put(ParkingController());
+    ParkingController parkingController = Get.find<ParkingController>();
     return DropdownButton(
         focusColor: Colors.white,
         items: const [

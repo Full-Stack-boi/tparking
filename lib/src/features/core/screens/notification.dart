@@ -13,7 +13,7 @@ class TPNotification extends StatefulWidget {
 
 class _MyTPNotification extends State<TPNotification> {
   late final TextEditingController inputcontroller;
-  final _profileController = Get.put(ProfileController());
+  final _profileController = Get.find<ProfileController>();
   UserModel? _user;
   bool _isLoading = true;
 

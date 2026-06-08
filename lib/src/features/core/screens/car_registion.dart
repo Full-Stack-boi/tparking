@@ -17,7 +17,7 @@ class CarRegistion extends StatefulWidget {
 }
 
 class _CarRegistionState extends State<CarRegistion> {
-  final _profileController = Get.put(ProfileController());
+  final _profileController = Get.find<ProfileController>();
   UserModel? _user;
   bool _isLoading = true;
 

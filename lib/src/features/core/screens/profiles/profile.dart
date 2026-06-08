@@ -24,7 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    final controller = Get.put(ProfileController());
+    final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,

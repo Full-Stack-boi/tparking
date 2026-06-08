@@ -46,7 +46,7 @@ class ParkingSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ParkingController controller = Get.put(ParkingController());
+    ParkingController controller = Get.find<ParkingController>();
     final remainingTime = getRemainingTimeText();
     return DashedContainer(
       dashColor: Colors.blue.shade300,

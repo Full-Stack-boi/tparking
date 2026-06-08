@@ -12,7 +12,7 @@ class Reserve extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ParkingController parkingController = Get.put(ParkingController());
+    ParkingController parkingController = Get.find<ParkingController>();
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Scaffold(
         appBar: AppBar(

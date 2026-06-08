@@ -40,7 +40,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   @override
   void initState() {
     super.initState();
-    controller = Get.put(ProfileController());
+    controller = Get.find<ProfileController>();
     _userDataFuture = controller.getUserData();
 
     fullName = TextEditingController();

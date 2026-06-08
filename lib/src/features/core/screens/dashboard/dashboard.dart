@@ -9,9 +9,19 @@ import '../car_registion.dart';
 import '../profiles/profile.dart';
 import '../reserves/reserve.dart';
 
+import '../../controllers/profile_controllers.dart';
+import '../../../controllers/parking_controllers.dart';
+
 class DashboardController extends GetxController {
   static DashboardController get instance => Get.find();
   final currentIndex = 0.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    Get.put(ProfileController());
+    Get.put(ParkingController());
+  }
 
   void changeTab(int index) {
     currentIndex.value = index;

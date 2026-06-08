@@ -25,9 +25,9 @@ class _BookingPageState extends State<BookingPage> {
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    ParkingController parkingController = Get.put(ParkingController());
+    ParkingController parkingController = Get.find<ParkingController>();
     final nowTimes = DateTime.now();
-    final controller = Get.put(ProfileController());
+    final controller = Get.find<ProfileController>();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: isDark ? tSecondaryColor : tPrimaryColor,
