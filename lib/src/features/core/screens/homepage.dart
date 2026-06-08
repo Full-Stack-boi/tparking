@@ -38,9 +38,14 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    final profileController = Get.put(ProfileController());
+    final profileController = Get.find<ProfileController>();
     _userDataFuture = profileController.getUserData();
-    _initLocation();
+    // Delay location initialization to allow screen transition to complete smoothly
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) {
+        _initLocation();
+      }
+    });
   }
 
   @override
@@ -60,6 +65,13 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> _initLocation() async {
     try {
+      // Optimize GPS request parameters to lower main thread workload
+      await location.changeSettings(
+        accuracy: LocationAccuracy.balanced,
+        interval: 3000,
+        distanceFilter: 5,
+      );
+      
       locationServiceEnabled = await location.serviceEnabled();
       if (!locationServiceEnabled) {
         locationServiceEnabled = await location.requestService();
@@ -416,13 +428,8 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
-    final parkingController = Get.put(ParkingController());
+    final parkingController = Get.find<ParkingController>();
     final dashboardController = Get.find<DashboardController>();
-    final nowTimes = DateTime.now();
-
-    if (nowTimes.hour > 19 || nowTimes.hour < 5) {
-      parkingController.resetAllSlotsAtNight();
-    }
 
     return Scaffold(
       appBar: AppBar(
