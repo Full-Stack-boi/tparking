@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:tparking/src/features/core/controllers/car_register_list.dart';
 import 'package:tparking/src/features/core/screens/dashboard/dashboard.dart';
 import '../models/car_model.dart';
+import 'package:tparking/src/repository/authentication_repository/user_repository/user_repository.dart';
 import 'notification_local.dart';
 
 class ParkingController extends GetxController {
@@ -50,6 +51,11 @@ class ParkingController extends GetxController {
   late String checkslotId = '';
   final isParked = false.obs;
 
+  final activeReservedSlot = Rxn<CarModel>();
+  List<String> _userCars = [];
+  Timer? _localTimer;
+  bool _hasSubscribed = false;
+
   StreamSubscription? _streamSubscription;
 
   // Helper to dynamically get table name for currently selected building
@@ -58,31 +64,113 @@ class ParkingController extends GetxController {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     isParked.value = SharedPreference.getID() != null;
     
-    // Subscribe to slots initially
-    subscribeToSlots();
+    // 1. Load user's registered cars
+    await _loadUserCars();
 
-    // Listen to building changes and re-subscribe
+    // 2. Listen to building changes and re-subscribe
     ever(selectedBuilding, (_) {
       subscribeToSlots();
     });
+
+    // 3. Find active reservation (may change selectedBuilding)
+    await findUserActiveReservation();
+
+    // 4. If we haven't subscribed yet (because selectedBuilding didn't change from 'A'), subscribe now
+    if (!_hasSubscribed) {
+      subscribeToSlots();
+    }
   }
 
   @override
   void onClose() {
     _streamSubscription?.cancel();
+    _localTimer?.cancel();
     super.onClose();
   }
 
+  Future<void> _loadUserCars() async {
+    try {
+      final email = _supabase.auth.currentUser?.email;
+      if (email == null) return;
+      final userRepo = Get.isRegistered<UserRepository>() 
+          ? Get.find<UserRepository>() 
+          : Get.put(UserRepository());
+      final user = await userRepo.getUserDetails(email);
+      _userCars = user.carRegistrations;
+      print("Loaded user cars: $_userCars");
+    } catch (e) {
+      print("Error loading user cars: $e");
+    }
+  }
+
+  Future<void> findUserActiveReservation() async {
+    try {
+      final email = _supabase.auth.currentUser?.email;
+      if (email == null) return;
+      
+      final userRepo = Get.isRegistered<UserRepository>()
+          ? Get.find<UserRepository>()
+          : Get.put(UserRepository());
+      final user = await userRepo.getUserDetails(email);
+      _userCars = user.carRegistrations;
+      if (_userCars.isEmpty) return;
+
+      final tables = ['parking_slots_a', 'parking_slots_b', 'parking_slots_c'];
+      for (var table in tables) {
+        for (var car in _userCars) {
+          if (car.isEmpty) continue;
+          final response = await _supabase
+              .from(table)
+              .select()
+              .eq('car_registration', car)
+              .or('booked.eq.true,isParked.eq.true');
+          
+          if (response.isNotEmpty) {
+            final Map<String, dynamic> row = response.first;
+            final slot = CarModel.fromJson(row);
+            final buildingLetter = table.split('_').last.toUpperCase(); // 'a' -> 'A'
+            
+            // Set active booking info
+            activeReservedSlot.value = slot;
+            slotIdPraked = slot.id ?? '';
+            checkslotId = slot.id ?? '';
+            isBooked.value = slot.booked == true;
+            isParked.value = slot.isParked == true;
+            
+            // Switch building (which triggers ever and re-subscribes)
+            selectedBuilding.value = buildingLetter;
+            
+            print("Found active reservation in building $buildingLetter, slot: ${slot.slotName}");
+            
+            // Start local countdown
+            startLocalCountdownTimer();
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      print("Error finding user active reservation: $e");
+    }
+  }
+
   void updateData(slotId) async {
+    final now = DateTime.now().toUtc();
+    final duration = Duration(minutes: parkingHours.value.toInt());
+    final parkedFromStr = now.toIso8601String();
+    final parkedToStr = now.add(duration).toIso8601String();
+
     await _supabase.from(currentTableName).update(
       {
         "car_registration": carRegistrationController.text,
         "parking_hours": parkingHours.toString(),
         "booked": true,
+        "parked_from": parkedFromStr,
+        "parked_to": parkedToStr,
+        "isParked": false,
       },
     ).eq('id', slotId);
 
@@ -128,7 +216,6 @@ class ParkingController extends GetxController {
           ],
         ));
 
-    startSlotTimer(slotId);
     slotIdPraked = slotId;
     checkslotId = slotIdPraked;
   }
@@ -145,12 +232,19 @@ class ParkingController extends GetxController {
 
   parkUpdate(checkslotId) async {
     await _supabase.from(currentTableName).update(
-      {"isParked": false, "booked": false, "car_registration": ""},
+      {
+        "isParked": false,
+        "booked": false,
+        "car_registration": "",
+        "parked_from": null,
+        "parked_to": null,
+      },
     ).eq('id', checkslotId);
     isParked.value = false;
   }
 
   void subscribeToSlots() async {
+    _hasSubscribed = true;
     _streamSubscription?.cancel();
     
     final tableName = currentTableName;
@@ -163,6 +257,7 @@ class ParkingController extends GetxController {
       slots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
       parkingSlots.value = slots;
       print("Supabase Select: Successfully loaded ${slots.length} slots initially.");
+      updateActiveReservationState();
     } catch (e) {
       print("Supabase Select: Error fetching initial slots: $e");
     }
@@ -178,6 +273,7 @@ class ParkingController extends GetxController {
         slots.sort((a, b) => (a.slotName ?? '').compareTo(b.slotName ?? ''));
         parkingSlots.value = slots;
         print("Supabase Realtime: Successfully parsed and sorted ${slots.length} slots.");
+        updateActiveReservationState();
       } catch (e, stack) {
         print("Supabase Realtime: Error parsing slots data: $e");
         print(stack);
@@ -191,32 +287,138 @@ class ParkingController extends GetxController {
     await _supabase.from(currentTableName).insert(car.toJson());
   }
 
-  void startSlotTimer(String slotKey) async {
-    final slot = parkingSlots.firstWhereOrNull((s) => s.id == slotKey);
-    if (slot == null) return;
+  void updateActiveReservationState() {
+    if (_userCars.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        activeReservedSlot.value = null;
+        isBooked.value = false;
+        isParked.value = false;
+      });
+      _localTimer?.cancel();
+      return;
+    }
+
+    final currentActiveSlot = parkingSlots.firstWhereOrNull((slot) =>
+        _userCars.contains(slot.carRegistration) &&
+        (slot.booked == true || slot.isParked == true));
+
+    if (currentActiveSlot != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        activeReservedSlot.value = currentActiveSlot;
+        slotIdPraked = currentActiveSlot.id ?? '';
+        checkslotId = currentActiveSlot.id ?? '';
+        isBooked.value = currentActiveSlot.booked == true;
+        isParked.value = currentActiveSlot.isParked == true;
+        
+        startLocalCountdownTimer();
+      });
+    } else {
+      final active = activeReservedSlot.value;
+      if (active != null) {
+        final activeBuildingTable = 'parking_slots_${active.building?.toLowerCase()}';
+        if (currentTableName == activeBuildingTable) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            activeReservedSlot.value = null;
+            isBooked.value = false;
+            isParked.value = false;
+          });
+          _localTimer?.cancel();
+        }
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          isBooked.value = false;
+          isParked.value = false;
+        });
+      }
+    }
+  }
+
+  int getRemainingSecondsStatic() {
+    if (isParked.value) {
+      return 0;
+    }
+    final slot = activeReservedSlot.value;
+    if (slot == null || slot.parkedTo == null) return 0;
+    try {
+      final parkedToDateTime = DateTime.parse(slot.parkedTo!).toUtc();
+      final nowUtc = DateTime.now().toUtc();
+      final difference = parkedToDateTime.difference(nowUtc).inSeconds;
+      return difference > 0 ? difference : 0;
+    } catch (e) {
+      print("Error parsing parkedTo: $e");
+      return 0;
+    }
+  }
+
+  int getTotalReservationSeconds() {
+    final slot = activeReservedSlot.value;
+    if (slot == null || slot.parkedFrom == null || slot.parkedTo == null) {
+      return parkingHours.value.toInt() * 60;
+    }
+    try {
+      final from = DateTime.parse(slot.parkedFrom!).toUtc();
+      final to = DateTime.parse(slot.parkedTo!).toUtc();
+      return to.difference(from).inSeconds;
+    } catch (e) {
+      return parkingHours.value.toInt() * 60;
+    }
+  }
+
+  int getInitialElapsedSeconds() {
+    final total = getTotalReservationSeconds();
+    final remaining = getRemainingSecondsStatic();
+    final elapsed = total - remaining;
+    return elapsed > 0 ? elapsed : 0;
+  }
+
+  void startLocalCountdownTimer() {
+    _localTimer?.cancel();
     
-    double time = double.tryParse(slot.parkingHours?.toString() ?? '0') ?? 0;
-    final tableName = currentTableName;
-
-    while (time > 0) {
-      await Future.delayed(const Duration(seconds: 1)); // for testing
-      time--;
-      await _supabase.from(tableName).update(
-        {
-          "parking_hours": time.toString(),
-        },
-      ).eq('id', slotKey);
+    final seconds = getRemainingSecondsStatic();
+    if (seconds <= 0) {
+      if (isBooked.value && !isParked.value) {
+        handleReservationExpired();
+      }
+      return;
     }
 
-    if (isParked.value == false) {
-      await _supabase.from(tableName).update(
-        {"booked": false, "isParked": false, "car_registration": ""},
-      ).eq('id', slotKey);
-      NotificationLocal().showNotification(
-          title: 'Alert', body: 'Your slot has been cancel');
-    }
+    _localTimer = Timer(Duration(seconds: seconds), () {
+      if (isBooked.value && !isParked.value) {
+        handleReservationExpired();
+      }
+    });
+  }
 
-    isBooked.value = false;
+  void handleReservationExpired() async {
+    if (isBooked.value && !isParked.value) {
+      final slot = activeReservedSlot.value;
+      if (slot != null) {
+        try {
+          final activeBuildingTable = 'parking_slots_${slot.building?.toLowerCase()}';
+          await _supabase.from(activeBuildingTable).update(
+            {
+              "booked": false,
+              "isParked": false,
+              "car_registration": "",
+              "parking_hours": "0",
+              "parked_from": null,
+              "parked_to": null,
+            },
+          ).eq('id', slot.id ?? '');
+          
+          NotificationLocal().showNotification(
+              title: 'Reservation Expired',
+              body: 'Your parking reservation slot has been released.');
+        } catch (e) {
+          print("Error releasing expired slot: $e");
+        }
+      }
+      
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        isBooked.value = false;
+        activeReservedSlot.value = null;
+      });
+    }
   }
 
   // Resets slots across all buildings at night (A, B, C)
@@ -227,7 +429,10 @@ class ParkingController extends GetxController {
         await _supabase.from(table).update({
           "isParked": false,
           "booked": false,
-          "car_registration": ""
+          "car_registration": "",
+          "parking_hours": "0",
+          "parked_from": null,
+          "parked_to": null,
         }).not('id', 'is', null);
       } catch (e) {
         print("Error resetting $table: $e");

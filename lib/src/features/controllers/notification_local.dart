@@ -51,7 +51,7 @@ class NotificationLocal {
         title: title,
         body: body,
         scheduledDate: tz.TZDateTime.now(tz.local)
-            .add(Duration(seconds: ParkingController().parkingHours.toInt())),
+            .add(Duration(minutes: ParkingController().parkingHours.toInt())),
         notificationDetails: await notificationDetails(),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: payload);
